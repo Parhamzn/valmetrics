@@ -106,26 +106,105 @@
             return sign + '$' + a.toFixed(2);
         };
 
+        // Compact non-currency big number for volume (153.5M, 1.2B, etc.)
+        window.fmtCompact = function(n) {
+            if (n === null || n === undefined || isNaN(n) || n === 0) return '—';
+            var a = Math.abs(n);
+            if (a >= 1e12) return (n/1e12).toFixed(2) + 'T';
+            if (a >= 1e9)  return (n/1e9 ).toFixed(2) + 'B';
+            if (a >= 1e6)  return (n/1e6 ).toFixed(2) + 'M';
+            if (a >= 1e3)  return (n/1e3 ).toFixed(2) + 'K';
+            return n.toFixed(0);
+        };
+
+        // Format an ISO timestamp for the user's local timezone (or
+        // window.userPrefs override) using a format that depends on the
+        // chart's period. Used by the price chart for axis ticks AND
+        // tooltips, so labels match.
+        window.fmtPriceTime = function(iso, period) {
+            if (!iso) return '';
+            var d = new Date(iso);
+            if (isNaN(d.getTime())) return iso;
+            var tz = (window.userPrefs && window.userPrefs.getTimezone()) || undefined;
+            var opts;
+            switch (period) {
+                case '1d':
+                    opts = { hour: 'numeric', minute: '2-digit', timeZone: tz };
+                    break;
+                case '1w':
+                    opts = { month: 'short', day: 'numeric', hour: 'numeric', timeZone: tz };
+                    break;
+                case '1mo':
+                    opts = { month: 'short', day: 'numeric', timeZone: tz };
+                    break;
+                case '1y':
+                    opts = { month: 'short', year: '2-digit', timeZone: tz };
+                    break;
+                case 'max':
+                    opts = { year: 'numeric', timeZone: tz };
+                    break;
+                default:
+                    opts = { month: 'short', day: 'numeric', year: 'numeric', timeZone: tz };
+            }
+            try { return new Intl.DateTimeFormat(undefined, opts).format(d); }
+            catch (e) { return iso; }
+        };
+
+        // Format an ISO timestamp as a friendly tooltip title — always shows
+        // both date and (for short periods) time, in user's tz.
+        window.fmtPriceTooltipTitle = function(iso, period) {
+            if (!iso) return '';
+            var d = new Date(iso);
+            if (isNaN(d.getTime())) return iso;
+            var tz = (window.userPrefs && window.userPrefs.getTimezone()) || undefined;
+            var opts = (period === '1d' || period === '1w')
+                ? { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: tz }
+                : { month: 'short', day: 'numeric', year: 'numeric', timeZone: tz };
+            try { return new Intl.DateTimeFormat(undefined, opts).format(d); }
+            catch (e) { return iso; }
+        };
+
+        // Clip plugin: hides the outer half of the first and last volume
+        // bars so the chart's left & right edges look balanced. Achieved
+        // by clipping the bar dataset's draw area to [first.x, last.x] —
+        // the line dataset is unclipped so the area fill still extends
+        // edge-to-edge.
+        var halfEdgesPlugin = {
+            id: 'halfEdges',
+            beforeDatasetDraw: function(chart, args) {
+                if (!args.meta || args.meta.type !== 'bar') return;
+                var data = args.meta.data;
+                if (!data || data.length < 2) return;
+                var ctx = chart.ctx;
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(data[0].x, 0, data[data.length - 1].x - data[0].x, chart.height);
+                ctx.clip();
+            },
+            afterDatasetDraw: function(chart, args) {
+                if (!args.meta || args.meta.type !== 'bar') return;
+                chart.ctx.restore();
+            },
+        };
+
         // X.com-style price chart: smooth area line on top, muted volume
         // bars hugging the bottom, no visible axes/grids. Color (green/red)
         // is decided by whether the period ended up or down.
-        // data = { labels, values, volumes, label, currency, up }
+        // data = { labels, values, volumes, label, currency, up, period }
         window.initPriceChart = function(canvas, data) {
             if (!canvas || !window.Chart) return;
             if (!data || !data.labels || data.labels.length === 0) return;
             var existing = Chart.getChart(canvas);
             if (existing) existing.destroy();
+            var period = data.period || '1y';
             var up = !!data.up;
             var line = up ? 'rgba(22, 163, 74, 1)'    : 'rgba(220, 38, 38, 1)';
             var fill = up ? 'rgba(22, 163, 74, 0.15)' : 'rgba(220, 38, 38, 0.12)';
-            // Last-point dot only:
             var n = data.values.length;
             var pointRadii = new Array(n).fill(0);
             var pointBg    = new Array(n).fill('transparent');
             pointRadii[n - 1] = 5;
             pointBg[n - 1]    = line;
-            // Squeeze the volume bars into the bottom ~20% of the chart by
-            // setting volume's y-axis max to 5x the actual max.
             var maxVol = 0;
             if (data.volumes) {
                 for (var i = 0; i < data.volumes.length; i++) {
@@ -133,8 +212,10 @@
                 }
             }
             var volMax = (maxVol > 0 ? maxVol : 1) * 5;
+            var hasVolume = data.volumes && data.volumes.some(function(v){return v>0;});
 
             new Chart(canvas, {
+                plugins: [halfEdgesPlugin],
                 data: {
                     labels: data.labels,
                     datasets: [
@@ -156,7 +237,7 @@
                             tension: 0.35,
                             order: 1,
                         },
-                        (data.volumes && data.volumes.some(function(v){return v>0;})) ? {
+                        hasVolume ? {
                             type: 'bar',
                             data: data.volumes,
                             yAxisID: 'volume',
@@ -164,7 +245,7 @@
                             borderWidth: 0,
                             borderRadius: 0,
                             categoryPercentage: 1.0,
-                            barPercentage: 0.95,
+                            barPercentage: 0.92,
                             order: 2,
                         } : null,
                     ].filter(Boolean),
@@ -180,18 +261,38 @@
                             padding: 10,
                             cornerRadius: 8,
                             displayColors: false,
-                            titleFont: { family: 'Inter', size: 12 },
+                            titleFont: { family: 'Inter', size: 12, weight: '600' },
                             bodyFont: { family: 'JetBrains Mono', size: 12 },
-                            filter: function(item) { return item.datasetIndex === 0; },
                             callbacks: {
+                                title: function(items) {
+                                    if (!items || !items.length) return '';
+                                    return window.fmtPriceTooltipTitle(data.labels[items[0].dataIndex], period);
+                                },
                                 label: function(ctx) {
-                                    return (data.currency ? data.currency + ' ' : '$') + ctx.parsed.y.toFixed(2);
+                                    if (ctx.datasetIndex === 0) {
+                                        return 'Price   ' + (data.currency ? data.currency + ' ' : '$') + ctx.parsed.y.toFixed(2);
+                                    }
+                                    return 'Volume  ' + window.fmtCompact(ctx.parsed.y);
                                 }
                             }
                         }
                     },
                     scales: {
-                        x: { display: false, grid: { display: false } },
+                        x: {
+                            display: true,
+                            grid: { display: false },
+                            border: { display: false },
+                            ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 6,
+                                maxRotation: 0,
+                                font: { family: 'Inter', size: 11 },
+                                color: '#9ca3af',
+                                callback: function(_value, idx) {
+                                    return window.fmtPriceTime(data.labels[idx], period);
+                                }
+                            }
+                        },
                         price:  {
                             type: 'linear',
                             position: 'right',

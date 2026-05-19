@@ -146,6 +146,7 @@ def overview(request: HttpRequest, ticker: str) -> HttpResponse:
                     "label": f"{ctx['ticker']} close",
                     "currency": series.currency or "",
                     "up": bool(period_change_up),
+                    "period": price_period,
                 }
             )
     except DataProviderError:
