@@ -106,36 +106,68 @@
             return sign + '$' + a.toFixed(2);
         };
 
-        // Initialize a line chart for price history.
-        // data = { labels: ["YYYY-MM-DD", ...], values: [num, ...], label: "...", currency: "USD" }
+        // X.com-style price chart: smooth area line on top, muted volume
+        // bars hugging the bottom, no visible axes/grids. Color (green/red)
+        // is decided by whether the period ended up or down.
+        // data = { labels, values, volumes, label, currency, up }
         window.initPriceChart = function(canvas, data) {
             if (!canvas || !window.Chart) return;
             if (!data || !data.labels || data.labels.length === 0) return;
             var existing = Chart.getChart(canvas);
             if (existing) existing.destroy();
-            var first = data.values[0];
-            var last = data.values[data.values.length - 1];
-            var up = last >= first;
-            var strokeColor = up ? 'rgba(22, 163, 74, 1)' : 'rgba(220, 38, 38, 1)';
-            var fillColor = up ? 'rgba(22, 163, 74, 0.10)' : 'rgba(220, 38, 38, 0.10)';
+            var up = !!data.up;
+            var line = up ? 'rgba(22, 163, 74, 1)'    : 'rgba(220, 38, 38, 1)';
+            var fill = up ? 'rgba(22, 163, 74, 0.15)' : 'rgba(220, 38, 38, 0.12)';
+            // Last-point dot only:
+            var n = data.values.length;
+            var pointRadii = new Array(n).fill(0);
+            var pointBg    = new Array(n).fill('transparent');
+            pointRadii[n - 1] = 5;
+            pointBg[n - 1]    = line;
+            // Squeeze the volume bars into the bottom ~20% of the chart by
+            // setting volume's y-axis max to 5x the actual max.
+            var maxVol = 0;
+            if (data.volumes) {
+                for (var i = 0; i < data.volumes.length; i++) {
+                    if (data.volumes[i] > maxVol) maxVol = data.volumes[i];
+                }
+            }
+            var volMax = (maxVol > 0 ? maxVol : 1) * 5;
+
             new Chart(canvas, {
-                type: 'line',
                 data: {
                     labels: data.labels,
-                    datasets: [{
-                        label: data.label || '',
-                        data: data.values,
-                        borderColor: strokeColor,
-                        backgroundColor: fillColor,
-                        fill: true,
-                        borderWidth: 2,
-                        pointRadius: 0,
-                        pointHoverRadius: 4,
-                        pointHoverBorderWidth: 2,
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: strokeColor,
-                        tension: 0.2,
-                    }]
+                    datasets: [
+                        {
+                            type: 'line',
+                            data: data.values,
+                            yAxisID: 'price',
+                            borderColor: line,
+                            backgroundColor: fill,
+                            fill: true,
+                            borderWidth: 2,
+                            pointRadius: pointRadii,
+                            pointBackgroundColor: pointBg,
+                            pointBorderColor: pointBg,
+                            pointHoverRadius: 5,
+                            pointHoverBorderWidth: 2,
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: line,
+                            tension: 0.35,
+                            order: 1,
+                        },
+                        (data.volumes && data.volumes.some(function(v){return v>0;})) ? {
+                            type: 'bar',
+                            data: data.volumes,
+                            yAxisID: 'volume',
+                            backgroundColor: 'rgba(156, 163, 175, 0.45)',
+                            borderWidth: 0,
+                            borderRadius: 0,
+                            categoryPercentage: 1.0,
+                            barPercentage: 0.95,
+                            order: 2,
+                        } : null,
+                    ].filter(Boolean),
                 },
                 options: {
                     responsive: true,
@@ -147,8 +179,10 @@
                             backgroundColor: 'rgba(17, 24, 39, 0.95)',
                             padding: 10,
                             cornerRadius: 8,
+                            displayColors: false,
                             titleFont: { family: 'Inter', size: 12 },
                             bodyFont: { family: 'JetBrains Mono', size: 12 },
+                            filter: function(item) { return item.datasetIndex === 0; },
                             callbacks: {
                                 label: function(ctx) {
                                     return (data.currency ? data.currency + ' ' : '$') + ctx.parsed.y.toFixed(2);
@@ -157,25 +191,23 @@
                         }
                     },
                     scales: {
-                        x: {
-                            grid: { display: false },
-                            ticks: {
-                                font: { family: 'Inter', size: 11 },
-                                color: '#9ca3af',
-                                maxTicksLimit: 8,
-                                maxRotation: 0,
-                            }
-                        },
-                        y: {
+                        x: { display: false, grid: { display: false } },
+                        price:  {
+                            type: 'linear',
                             position: 'right',
-                            grid: { color: 'rgba(0,0,0,0.05)' },
-                            ticks: {
-                                font: { family: 'JetBrains Mono', size: 11 },
-                                color: '#9ca3af',
-                                callback: function(v) { return (data.currency ? data.currency + ' ' : '$') + v.toFixed(0); }
-                            }
+                            display: false,
+                            grid: { display: false },
+                        },
+                        volume: {
+                            type: 'linear',
+                            position: 'left',
+                            display: false,
+                            grid: { display: false },
+                            min: 0,
+                            max: volMax,
                         }
-                    }
+                    },
+                    layout: { padding: { top: 4, right: 0, bottom: 0, left: 0 } }
                 }
             });
         };

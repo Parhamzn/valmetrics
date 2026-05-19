@@ -110,21 +110,42 @@ def overview(request: HttpRequest, ticker: str) -> HttpResponse:
     ctx["active_tab"] = "overview"
 
     price_period = request.GET.get("price_period", "1y")
-    if price_period not in {"1mo", "6mo", "1y", "5y", "max"}:
+    if price_period not in {"1d", "1w", "1mo", "1y", "max"}:
         price_period = "1y"
 
+    # Map our period slug → yfinance (period, interval). Intraday for short
+    # windows, daily for medium, monthly for "max" so the line stays smooth.
+    period_interval = {
+        "1d":  ("1d",  "5m"),
+        "1w":  ("5d",  "30m"),
+        "1mo": ("1mo", "1d"),
+        "1y":  ("1y",  "1d"),
+        "max": ("max", "1mo"),
+    }[price_period]
+
     price_chart_json = "null"
+    period_change_abs = None
+    period_change_pct = None
+    period_change_up = None
     try:
         series = get_provider().get_price_history(
-            ctx["ticker"], period=price_period, interval="1d"
+            ctx["ticker"], period=period_interval[0], interval=period_interval[1]
         )
         if series and series.points:
+            first = series.points[0].close
+            last = series.points[-1].close
+            if first and first != 0:
+                period_change_abs = last - first
+                period_change_pct = (last - first) / first * 100.0
+                period_change_up = last >= first
             price_chart_json = _json.dumps(
                 {
                     "labels": [p.date.isoformat() for p in series.points],
                     "values": [p.close for p in series.points],
+                    "volumes": [p.volume or 0 for p in series.points],
                     "label": f"{ctx['ticker']} close",
                     "currency": series.currency or "",
+                    "up": bool(period_change_up),
                 }
             )
     except DataProviderError:
@@ -132,6 +153,9 @@ def overview(request: HttpRequest, ticker: str) -> HttpResponse:
 
     ctx["price_chart_json"] = price_chart_json
     ctx["price_period"] = price_period
+    ctx["period_change_abs"] = period_change_abs
+    ctx["period_change_pct"] = period_change_pct
+    ctx["period_change_up"] = period_change_up
     return _render_tab(
         request,
         "companies/overview.html",

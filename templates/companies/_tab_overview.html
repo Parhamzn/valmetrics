@@ -1,37 +1,57 @@
 {% load format_filters %}
 <div class="space-y-6">
 
-    {# Price history chart #}
-    <section class="bg-white border border-gray-200 rounded-2xl p-4 shadow-card"
-             x-data="{ p: '{{ price_period }}' }">
-        <div class="flex items-center justify-between mb-3">
-            <h2 class="text-sm uppercase tracking-wider text-gray-500 font-medium">Price history</h2>
-            <div class="inline-flex items-center gap-0.5 p-0.5 bg-gray-100 rounded-full text-xs">
-                {% for p in "1mo,6mo,1y,5y,max"|cut:" "|stringformat:"s"|slice:":50" %}{% endfor %}
-                <a href="?price_period=1mo"
-                   hx-get="?price_period=1mo" hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
-                   class="px-2.5 py-1 rounded-full transition
-                          {% if price_period == '1mo' %}bg-white text-gray-900 font-medium shadow-sm{% else %}text-gray-600 hover:text-gray-900{% endif %}">1M</a>
-                <a href="?price_period=6mo"
-                   hx-get="?price_period=6mo" hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
-                   class="px-2.5 py-1 rounded-full transition
-                          {% if price_period == '6mo' %}bg-white text-gray-900 font-medium shadow-sm{% else %}text-gray-600 hover:text-gray-900{% endif %}">6M</a>
-                <a href="?price_period=1y"
-                   hx-get="?price_period=1y" hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
-                   class="px-2.5 py-1 rounded-full transition
-                          {% if price_period == '1y' %}bg-white text-gray-900 font-medium shadow-sm{% else %}text-gray-600 hover:text-gray-900{% endif %}">1Y</a>
-                <a href="?price_period=5y"
-                   hx-get="?price_period=5y" hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
-                   class="px-2.5 py-1 rounded-full transition
-                          {% if price_period == '5y' %}bg-white text-gray-900 font-medium shadow-sm{% else %}text-gray-600 hover:text-gray-900{% endif %}">5Y</a>
-                <a href="?price_period=max"
-                   hx-get="?price_period=max" hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
-                   class="px-2.5 py-1 rounded-full transition
-                          {% if price_period == 'max' %}bg-white text-gray-900 font-medium shadow-sm{% else %}text-gray-600 hover:text-gray-900{% endif %}">Max</a>
+    {# Price history chart — X.com style #}
+    <section class="bg-white border border-gray-200 rounded-2xl shadow-card overflow-hidden">
+        <div class="px-5 pt-5 pb-2">
+            {% if quote %}
+            <div class="flex items-baseline gap-3">
+                <div class="text-3xl font-semibold font-mono tracking-tight">
+                    {{ quote.currency }} {{ quote.price|floatformat:2 }}
+                </div>
             </div>
+            {% endif %}
+            {% if period_change_pct is not None %}
+            <div class="mt-1 text-sm font-mono
+                        {% if period_change_up %}text-green-600{% else %}text-red-600{% endif %}">
+                {% if period_change_up %}▲{% else %}▼{% endif %}
+                {{ quote.currency }} {{ period_change_abs|floatformat:2 }}
+                ({{ period_change_pct|floatformat:2 }}%)
+                <span class="text-gray-400 ml-1">
+                    · {% if price_period == "1d" %}past day
+                       {% elif price_period == "1w" %}past week
+                       {% elif price_period == "1mo" %}past month
+                       {% elif price_period == "1y" %}past year
+                       {% else %}all time{% endif %}
+                </span>
+            </div>
+            {% endif %}
         </div>
         <div class="relative" style="height: 280px;">
             <canvas x-init="initPriceChart($el, {{ price_chart_json }})"></canvas>
+        </div>
+        <div class="border-t border-gray-100 px-3 py-2 flex justify-around items-center text-xs">
+            {% for slug, label in "1d:1D,1w:1W,1mo:1M,1y:1Y,max:ALL"|cut:" "|slice:":100"|stringformat:"s"|slice:":0" %}{% endfor %}
+            <a href="?price_period=1d"
+               hx-get="?price_period=1d" hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
+               class="px-4 py-1.5 rounded-full transition
+                      {% if price_period == '1d' %}bg-gray-900 text-white font-medium{% else %}text-gray-600 hover:bg-gray-100{% endif %}">1D</a>
+            <a href="?price_period=1w"
+               hx-get="?price_period=1w" hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
+               class="px-4 py-1.5 rounded-full transition
+                      {% if price_period == '1w' %}bg-gray-900 text-white font-medium{% else %}text-gray-600 hover:bg-gray-100{% endif %}">1W</a>
+            <a href="?price_period=1mo"
+               hx-get="?price_period=1mo" hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
+               class="px-4 py-1.5 rounded-full transition
+                      {% if price_period == '1mo' %}bg-gray-900 text-white font-medium{% else %}text-gray-600 hover:bg-gray-100{% endif %}">1M</a>
+            <a href="?price_period=1y"
+               hx-get="?price_period=1y" hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
+               class="px-4 py-1.5 rounded-full transition
+                      {% if price_period == '1y' %}bg-gray-900 text-white font-medium{% else %}text-gray-600 hover:bg-gray-100{% endif %}">1Y</a>
+            <a href="?price_period=max"
+               hx-get="?price_period=max" hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
+               class="px-4 py-1.5 rounded-full transition
+                      {% if price_period == 'max' %}bg-gray-900 text-white font-medium{% else %}text-gray-600 hover:bg-gray-100{% endif %}">ALL</a>
         </div>
     </section>
 
