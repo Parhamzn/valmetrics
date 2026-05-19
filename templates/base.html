@@ -106,6 +106,80 @@
             return sign + '$' + a.toFixed(2);
         };
 
+        // Initialize a line chart for price history.
+        // data = { labels: ["YYYY-MM-DD", ...], values: [num, ...], label: "...", currency: "USD" }
+        window.initPriceChart = function(canvas, data) {
+            if (!canvas || !window.Chart) return;
+            if (!data || !data.labels || data.labels.length === 0) return;
+            var existing = Chart.getChart(canvas);
+            if (existing) existing.destroy();
+            var first = data.values[0];
+            var last = data.values[data.values.length - 1];
+            var up = last >= first;
+            var strokeColor = up ? 'rgba(22, 163, 74, 1)' : 'rgba(220, 38, 38, 1)';
+            var fillColor = up ? 'rgba(22, 163, 74, 0.10)' : 'rgba(220, 38, 38, 0.10)';
+            new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: data.label || '',
+                        data: data.values,
+                        borderColor: strokeColor,
+                        backgroundColor: fillColor,
+                        fill: true,
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        pointHoverRadius: 4,
+                        pointHoverBorderWidth: 2,
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: strokeColor,
+                        tension: 0.2,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { intersect: false, mode: 'index' },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                            padding: 10,
+                            cornerRadius: 8,
+                            titleFont: { family: 'Inter', size: 12 },
+                            bodyFont: { family: 'JetBrains Mono', size: 12 },
+                            callbacks: {
+                                label: function(ctx) {
+                                    return (data.currency ? data.currency + ' ' : '$') + ctx.parsed.y.toFixed(2);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                font: { family: 'Inter', size: 11 },
+                                color: '#9ca3af',
+                                maxTicksLimit: 8,
+                                maxRotation: 0,
+                            }
+                        },
+                        y: {
+                            position: 'right',
+                            grid: { color: 'rgba(0,0,0,0.05)' },
+                            ticks: {
+                                font: { family: 'JetBrains Mono', size: 11 },
+                                color: '#9ca3af',
+                                callback: function(v) { return (data.currency ? data.currency + ' ' : '$') + v.toFixed(0); }
+                            }
+                        }
+                    }
+                }
+            });
+        };
+
         // Initialize a bar chart for a statement line item.
         // data = { labels: [...], values: [...], label: 'Total revenue' }
         window.initStatementChart = function(canvas, data) {

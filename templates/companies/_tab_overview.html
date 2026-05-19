@@ -1,43 +1,81 @@
 {% load format_filters %}
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="space-y-6">
 
-    <div class="lg:col-span-2 space-y-4">
-        <section>
-            <h2 class="text-lg font-semibold mb-2">Business summary</h2>
-            <p class="text-gray-700 leading-relaxed">{{ profile.description|default:"—" }}</p>
-        </section>
+    {# Price history chart #}
+    <section class="bg-white border border-gray-200 rounded-2xl p-4 shadow-card"
+             x-data="{ p: '{{ price_period }}' }">
+        <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm uppercase tracking-wider text-gray-500 font-medium">Price history</h2>
+            <div class="inline-flex items-center gap-0.5 p-0.5 bg-gray-100 rounded-full text-xs">
+                {% for p in "1mo,6mo,1y,5y,max"|cut:" "|stringformat:"s"|slice:":50" %}{% endfor %}
+                <a href="?price_period=1mo"
+                   hx-get="?price_period=1mo" hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
+                   class="px-2.5 py-1 rounded-full transition
+                          {% if price_period == '1mo' %}bg-white text-gray-900 font-medium shadow-sm{% else %}text-gray-600 hover:text-gray-900{% endif %}">1M</a>
+                <a href="?price_period=6mo"
+                   hx-get="?price_period=6mo" hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
+                   class="px-2.5 py-1 rounded-full transition
+                          {% if price_period == '6mo' %}bg-white text-gray-900 font-medium shadow-sm{% else %}text-gray-600 hover:text-gray-900{% endif %}">6M</a>
+                <a href="?price_period=1y"
+                   hx-get="?price_period=1y" hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
+                   class="px-2.5 py-1 rounded-full transition
+                          {% if price_period == '1y' %}bg-white text-gray-900 font-medium shadow-sm{% else %}text-gray-600 hover:text-gray-900{% endif %}">1Y</a>
+                <a href="?price_period=5y"
+                   hx-get="?price_period=5y" hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
+                   class="px-2.5 py-1 rounded-full transition
+                          {% if price_period == '5y' %}bg-white text-gray-900 font-medium shadow-sm{% else %}text-gray-600 hover:text-gray-900{% endif %}">5Y</a>
+                <a href="?price_period=max"
+                   hx-get="?price_period=max" hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
+                   class="px-2.5 py-1 rounded-full transition
+                          {% if price_period == 'max' %}bg-white text-gray-900 font-medium shadow-sm{% else %}text-gray-600 hover:text-gray-900{% endif %}">Max</a>
+            </div>
+        </div>
+        <div class="relative" style="height: 280px;">
+            <canvas x-init="initPriceChart($el, {{ price_chart_json }})"></canvas>
+        </div>
+    </section>
 
-        {% if profile.website %}
-        <section>
-            <a href="{{ profile.website }}" target="_blank" rel="noopener"
-               class="text-blue-600 hover:underline text-sm">
-                {{ profile.website }} ↗
-            </a>
-        </section>
-        {% endif %}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <div class="lg:col-span-2 space-y-4">
+            <section>
+                <h2 class="text-lg font-semibold mb-2">Business summary</h2>
+                <p class="text-gray-700 leading-relaxed text-justify hyphens-auto">{{ profile.description|default:"—" }}</p>
+            </section>
+
+            {% if profile.website %}
+            <section>
+                <a href="{{ profile.website }}" target="_blank" rel="noopener"
+                   class="text-blue-600 hover:underline text-sm">
+                    {{ profile.website }} ↗
+                </a>
+            </section>
+            {% endif %}
+        </div>
+
+        <aside class="space-y-3">
+            <h2 class="text-lg font-semibold">Key facts</h2>
+            <dl class="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
+                <dt class="text-gray-500">Sector</dt>
+                <dd>{{ profile.sector|or_dash }}</dd>
+
+                <dt class="text-gray-500">Industry</dt>
+                <dd>{{ profile.industry|or_dash }}</dd>
+
+                <dt class="text-gray-500">Country</dt>
+                <dd>{{ profile.country|or_dash }}</dd>
+
+                <dt class="text-gray-500">Employees</dt>
+                <dd>{{ profile.employees|humanize }}</dd>
+
+                <dt class="text-gray-500">Market cap</dt>
+                <dd>{{ profile.currency }} {{ profile.market_cap|humanize }}</dd>
+
+                <dt class="text-gray-500">Exchange</dt>
+                <dd>{{ profile.exchange|or_dash }}</dd>
+            </dl>
+        </aside>
+
     </div>
-
-    <aside class="space-y-3">
-        <h2 class="text-lg font-semibold">Key facts</h2>
-        <dl class="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
-            <dt class="text-gray-500">Sector</dt>
-            <dd>{{ profile.sector|or_dash }}</dd>
-
-            <dt class="text-gray-500">Industry</dt>
-            <dd>{{ profile.industry|or_dash }}</dd>
-
-            <dt class="text-gray-500">Country</dt>
-            <dd>{{ profile.country|or_dash }}</dd>
-
-            <dt class="text-gray-500">Employees</dt>
-            <dd>{{ profile.employees|humanize }}</dd>
-
-            <dt class="text-gray-500">Market cap</dt>
-            <dd>{{ profile.currency }} {{ profile.market_cap|humanize }}</dd>
-
-            <dt class="text-gray-500">Exchange</dt>
-            <dd>{{ profile.exchange|or_dash }}</dd>
-        </dl>
-    </aside>
 
 </div>

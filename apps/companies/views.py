@@ -102,10 +102,36 @@ def company_root(request: HttpRequest, ticker: str) -> HttpResponse:
 
 @require_GET
 def overview(request: HttpRequest, ticker: str) -> HttpResponse:
+    import json as _json
+
     ctx, early = _base_ctx(request, ticker)
     if early is not None:
         return early
     ctx["active_tab"] = "overview"
+
+    price_period = request.GET.get("price_period", "1y")
+    if price_period not in {"1mo", "6mo", "1y", "5y", "max"}:
+        price_period = "1y"
+
+    price_chart_json = "null"
+    try:
+        series = get_provider().get_price_history(
+            ctx["ticker"], period=price_period, interval="1d"
+        )
+        if series and series.points:
+            price_chart_json = _json.dumps(
+                {
+                    "labels": [p.date.isoformat() for p in series.points],
+                    "values": [p.close for p in series.points],
+                    "label": f"{ctx['ticker']} close",
+                    "currency": series.currency or "",
+                }
+            )
+    except DataProviderError:
+        pass
+
+    ctx["price_chart_json"] = price_chart_json
+    ctx["price_period"] = price_period
     return _render_tab(
         request,
         "companies/overview.html",
