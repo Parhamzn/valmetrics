@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 
 from django import template
-from django.utils.safestring import mark_safe
 
 from apps.companies.statement_layout import (
     BALANCE_LAYOUT,
@@ -54,4 +53,4 @@ def chart_data_for(statement, key, label=""):
             "values": [p[1] for p in pairs],
             "label": label,
         }
-    return mark_safe(json.dumps(payload))
+    return json.dumps(payload)
