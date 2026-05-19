@@ -6,18 +6,20 @@
         <div class="px-5 pt-5 pb-2">
             {% if quote %}
             <div class="flex items-baseline gap-3">
-                <div class="text-3xl font-semibold font-mono tracking-tight">
+                <div id="price-readout"
+                     class="text-3xl font-semibold font-mono tracking-tight tabular-nums">
                     {{ quote.currency }} {{ quote.price|floatformat:2 }}
                 </div>
             </div>
             {% endif %}
             {% if period_change_pct is not None %}
-            <div class="mt-1 text-sm font-mono
+            <div id="change-readout"
+                 data-up="{{ period_change_up|yesno:'1,0' }}"
+                 class="mt-1 text-sm font-mono tabular-nums
                         {% if period_change_up %}text-green-600 dark:text-green-400{% else %}text-red-600 dark:text-red-400{% endif %}">
-                {% if period_change_up %}▲{% else %}▼{% endif %}
-                {{ quote.currency }} {{ period_change_abs|floatformat:2 }}
-                ({{ period_change_pct|floatformat:2 }}%)
-                <span class="text-gray-400 dark:text-gray-500 ml-1">
+                <span data-arrow>{% if period_change_up %}▲{% else %}▼{% endif %}</span>
+                <span data-value>{{ quote.currency }} {{ period_change_abs|floatformat:2 }} ({{ period_change_pct|floatformat:2 }}%)</span>
+                <span class="text-gray-400 dark:text-gray-500 ml-1" data-suffix>
                     · {% if price_period == "1d" %}past day
                        {% elif price_period == "1w" %}past week
                        {% elif price_period == "1mo" %}past month
@@ -27,6 +29,66 @@
             </div>
             {% endif %}
         </div>
+
+        <script>
+        (function() {
+            var data = {{ price_chart_json|safe }};
+            var priceEl = document.getElementById('price-readout');
+            var changeEl = document.getElementById('change-readout');
+            if (!data || !data.values || !data.values.length || !priceEl) return;
+            var currency = data.currency ? data.currency + ' ' : '$';
+            var basePrice = {{ quote.price|default:"null" }};
+            var baseChangeAbs = {{ period_change_abs|default:"null" }};
+            var baseChangePct = {{ period_change_pct|default:"null" }};
+            var baseSuffix = changeEl ? changeEl.querySelector('[data-suffix]').textContent : '';
+            var startPrice = data.values[0];
+
+            // Smoothly tween the displayed price + change on cursor moves
+            var current = basePrice;
+            var rafId = null;
+            function fmtPrice(n) { return currency + n.toFixed(2); }
+            function paintAt(idx) {
+                var target = idx == null ? basePrice : data.values[idx];
+                if (rafId) cancelAnimationFrame(rafId);
+                var from = current;
+                var t0 = performance.now();
+                function step(now) {
+                    var t = Math.min(1, (now - t0) / 220);
+                    var e = 1 - Math.pow(1 - t, 3);  // ease-out cubic
+                    current = from + (target - from) * e;
+                    priceEl.textContent = fmtPrice(current);
+                    if (t < 1) { rafId = requestAnimationFrame(step); }
+                    else { current = target; rafId = null; }
+                }
+                rafId = requestAnimationFrame(step);
+                paintChange(idx);
+            }
+            function paintChange(idx) {
+                if (!changeEl) return;
+                var arrowEl  = changeEl.querySelector('[data-arrow]');
+                var valueEl  = changeEl.querySelector('[data-value]');
+                var suffixEl = changeEl.querySelector('[data-suffix]');
+                var absChg, pctChg, up;
+                if (idx == null) {
+                    absChg = baseChangeAbs; pctChg = baseChangePct;
+                    up = baseChangeAbs >= 0;
+                    suffixEl.textContent = baseSuffix;
+                } else {
+                    absChg = data.values[idx] - startPrice;
+                    pctChg = startPrice ? (absChg / startPrice) * 100 : 0;
+                    up = absChg >= 0;
+                    suffixEl.textContent = '  at ' + window.fmtPriceTooltipTitle(data.labels[idx], data.period);
+                }
+                arrowEl.textContent = up ? '▲' : '▼';
+                valueEl.textContent = currency + Math.abs(absChg).toFixed(2) + ' (' + pctChg.toFixed(2) + '%)';
+                changeEl.classList.toggle('text-green-600', up);
+                changeEl.classList.toggle('dark:text-green-400', up);
+                changeEl.classList.toggle('text-red-600', !up);
+                changeEl.classList.toggle('dark:text-red-400', !up);
+            }
+            window._priceChartCursor = paintAt;
+        })();
+        </script>
         <div class="relative" style="height: 280px;">
             <canvas x-init="initPriceChart($el, {{ price_chart_json }})"></canvas>
         </div>

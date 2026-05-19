@@ -326,6 +326,13 @@
             var hasVolume = data.volumes && data.volumes.some(function(v){return v>0;});
             var theme = window.chartThemeColors();
 
+            // Optional cursor hook: when the user hovers over the chart,
+            // call window._priceChartCursor with the data index (or null on
+            // leave). Used by the overview tab to animate the big readout.
+            canvas.addEventListener('mouseleave', function() {
+                if (window._priceChartCursor) window._priceChartCursor(null);
+            });
+
             new Chart(canvas, {
                 plugins: [halfEdgesPlugin],
                 data: {
@@ -366,6 +373,10 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     interaction: { intersect: false, mode: 'index' },
+                    onHover: function(_e, active) {
+                        if (!window._priceChartCursor) return;
+                        window._priceChartCursor(active.length > 0 ? active[0].index : null);
+                    },
                     plugins: {
                         legend: { display: false },
                         tooltip: {
