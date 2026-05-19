@@ -34,12 +34,12 @@
     {% else %}
         {% with col_count=statement.lines|length|add:1 %}
         <div class="overflow-x-auto border border-gray-200 rounded-2xl bg-white shadow-card">
-            <table class="min-w-full text-sm">
-                <thead class="border-b border-gray-200 bg-gray-50/70">
+            <table class="w-full text-sm">
+                <thead class="bg-blue-600 text-white">
                     <tr>
-                        <th class="text-left px-3 py-2.5 font-medium text-gray-700 sticky left-0 bg-gray-50/70">Line item</th>
+                        <th class="text-left px-3 py-2.5 font-medium sticky left-0 bg-blue-600 w-full">Line item</th>
                         {% for line in statement.lines %}
-                            <th class="text-right px-3 py-2.5 font-medium text-gray-700 whitespace-nowrap">
+                            <th class="text-right px-3 py-2.5 font-medium whitespace-nowrap font-mono">
                                 {{ line.period_end|date:"Y-m-d" }}
                             </th>
                         {% endfor %}
@@ -48,26 +48,25 @@
                 <tbody x-data="{ expanded: null }">
                     {% for label, key in layout %}
                         <tr @click="expanded = expanded === '{{ key }}' ? null : '{{ key }}'"
-                            :class="expanded === '{{ key }}' ? 'bg-blue-600 text-white shadow-sm relative z-10' : 'hover:bg-blue-50 hover:text-blue-900 hover:shadow-sm hover:relative hover:z-10'"
-                            class="border-b border-gray-100 cursor-pointer transition-all">
-                            <td class="px-3 py-2 sticky left-0 whitespace-nowrap"
-                                :class="expanded === '{{ key }}' ? 'bg-blue-600 text-white font-medium' : 'bg-white text-gray-700 group-hover:bg-blue-50'">
+                            :class="expanded === '{{ key }}' ? 'bg-blue-50/60' : 'hover:bg-gray-50'"
+                            class="border-b border-gray-100 cursor-pointer transition-colors">
+                            <td class="px-3 py-2 sticky left-0 whitespace-nowrap w-full"
+                                :class="expanded === '{{ key }}' ? 'bg-blue-50/60 text-blue-700 font-medium' : 'bg-white text-gray-700'">
                                 <span class="inline-flex items-center gap-2">
                                     <span class="text-xs"
-                                          :class="expanded === '{{ key }}' ? 'rotate-90 text-white' : 'text-gray-400'"
+                                          :class="expanded === '{{ key }}' ? 'rotate-90 text-blue-500' : 'text-gray-400'"
                                           style="transition: transform .15s">▶</span>
                                     {{ label }}
                                 </span>
                             </td>
                             {% for line in statement.lines %}
-                                <td class="px-3 py-2 text-right font-mono whitespace-nowrap"
-                                    :class="expanded === '{{ key }}' ? 'text-white' : 'text-gray-900'">
+                                <td class="px-3 py-2 text-right font-mono text-gray-900 whitespace-nowrap">
                                     {{ line.items|get_item:key|money }}
                                 </td>
                             {% endfor %}
                         </tr>
                         <template x-if="expanded === '{{ key }}'">
-                            <tr class="bg-blue-50/40">
+                            <tr class="bg-blue-50/30">
                                 <td colspan="{{ col_count }}" class="px-4 py-4">
                                     <div class="flex items-baseline justify-between mb-2">
                                         <h4 class="text-sm font-semibold text-gray-800">{{ label }} — {{ period|capfirst }} progression</h4>
