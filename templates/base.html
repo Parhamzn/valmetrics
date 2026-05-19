@@ -92,6 +92,24 @@
       .theme-changing, .theme-changing *, .theme-changing *::before, .theme-changing *::after {
         transition: none !important;
       }
+      /* In dark mode, text inside tinted info/warning/error callouts
+         (blue/yellow/red/green 950) is white. Tailwind's default text
+         tone for these elements (e.g. text-blue-900) is too dark to read
+         against the 950 bg, and dark:text-X-300 is still too low contrast. */
+      .dark .dark\:bg-blue-950\/40,
+      .dark .dark\:bg-yellow-950\/40,
+      .dark .dark\:bg-red-950\/40,
+      .dark .dark\:bg-green-950\/40 {
+        color: rgb(255 255 255) !important;
+      }
+      /* Keep links inside callouts visibly link-colored (overrides the
+         white-text inheritance above). */
+      .dark .dark\:bg-blue-950\/40 a,
+      .dark .dark\:bg-yellow-950\/40 a,
+      .dark .dark\:bg-red-950\/40 a,
+      .dark .dark\:bg-green-950\/40 a {
+        color: rgb(147 197 253);  /* blue-300 */
+      }
       /* Default styling for form controls in dark mode.
          Avoids having to add dark: variants to every <input>/<select>/<textarea>
          in every model assumption form. Specific classes can still override. */
