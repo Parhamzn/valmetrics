@@ -1,33 +1,33 @@
 {% load format_filters %}
 
 {% if piotroski_error %}
-    <div class="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">
+    <div class="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-400 px-3 py-2 rounded text-sm">
         Couldn't compute F-Score: {{ piotroski_error }}
     </div>
 {% elif not piotroski_outputs %}
-    <div class="text-gray-500">No result computed.</div>
+    <div class="text-gray-500 dark:text-gray-400 dark:text-gray-500">No result computed.</div>
 {% else %}
 
     {# Color the headline by classification band. #}
     {% if piotroski_outputs.total_score >= 8 %}
-        {% with band_color="text-green-700" band_bg="bg-green-50" band_border="border-green-200" %}
+        {% with band_color="text-green-700 dark:text-green-400" band_bg="bg-green-50 dark:bg-green-950/40" band_border="border-green-200" %}
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
                 <div class="{{ band_bg }} border {{ band_border }} rounded p-4 sm:col-span-2 flex items-center gap-6">
                     <div>
-                        <div class="text-xs uppercase tracking-wide text-gray-500">F-Score</div>
+                        <div class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 dark:text-gray-500">F-Score</div>
                         <div class="text-5xl font-mono font-bold {{ band_color }}">
-                            {{ piotroski_outputs.total_score }} <span class="text-2xl text-gray-500">/ 9</span>
+                            {{ piotroski_outputs.total_score }} <span class="text-2xl text-gray-500 dark:text-gray-400 dark:text-gray-500">/ 9</span>
                         </div>
                     </div>
                     <div>
-                        <div class="text-xs uppercase tracking-wide text-gray-500">Classification</div>
+                        <div class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 dark:text-gray-500">Classification</div>
                         <div class="text-2xl font-semibold {{ band_color }}">
                             {{ piotroski_outputs.classification }}
                         </div>
                     </div>
                 </div>
-                <div class="bg-white border border-gray-200 rounded p-4 text-sm text-gray-600">
-                    <div class="font-semibold text-gray-800 mb-1">Interpretation</div>
+                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded p-4 text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">
+                    <div class="font-semibold text-gray-800 dark:text-gray-200 mb-1">Interpretation</div>
                     Strong financial health across profitability, leverage, and
                     efficiency. Historically Piotroski's high-F-Score / cheap
                     cohort outperformed by ~7.5% per year.
@@ -35,48 +35,48 @@
             </div>
         {% endwith %}
     {% elif piotroski_outputs.total_score >= 4 %}
-        {% with band_color="text-gray-700" band_bg="bg-gray-50" band_border="border-gray-200" %}
+        {% with band_color="text-gray-700 dark:text-gray-300" band_bg="bg-gray-50 dark:bg-slate-800/50" band_border="border-gray-200 dark:border-slate-800" %}
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
                 <div class="{{ band_bg }} border {{ band_border }} rounded p-4 sm:col-span-2 flex items-center gap-6">
                     <div>
-                        <div class="text-xs uppercase tracking-wide text-gray-500">F-Score</div>
+                        <div class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 dark:text-gray-500">F-Score</div>
                         <div class="text-5xl font-mono font-bold {{ band_color }}">
-                            {{ piotroski_outputs.total_score }} <span class="text-2xl text-gray-500">/ 9</span>
+                            {{ piotroski_outputs.total_score }} <span class="text-2xl text-gray-500 dark:text-gray-400 dark:text-gray-500">/ 9</span>
                         </div>
                     </div>
                     <div>
-                        <div class="text-xs uppercase tracking-wide text-gray-500">Classification</div>
+                        <div class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 dark:text-gray-500">Classification</div>
                         <div class="text-2xl font-semibold {{ band_color }}">
                             {{ piotroski_outputs.classification }}
                         </div>
                     </div>
                 </div>
-                <div class="bg-white border border-gray-200 rounded p-4 text-sm text-gray-600">
-                    <div class="font-semibold text-gray-800 mb-1">Interpretation</div>
+                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded p-4 text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">
+                    <div class="font-semibold text-gray-800 dark:text-gray-200 mb-1">Interpretation</div>
                     Mixed signals — some criteria pass and others fail. Drill
                     into the table below to see which dimensions are weakest.
                 </div>
             </div>
         {% endwith %}
     {% else %}
-        {% with band_color="text-red-700" band_bg="bg-red-50" band_border="border-red-200" %}
+        {% with band_color="text-red-700 dark:text-red-400" band_bg="bg-red-50 dark:bg-red-950/40" band_border="border-red-200 dark:border-red-900" %}
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
                 <div class="{{ band_bg }} border {{ band_border }} rounded p-4 sm:col-span-2 flex items-center gap-6">
                     <div>
-                        <div class="text-xs uppercase tracking-wide text-gray-500">F-Score</div>
+                        <div class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 dark:text-gray-500">F-Score</div>
                         <div class="text-5xl font-mono font-bold {{ band_color }}">
-                            {{ piotroski_outputs.total_score }} <span class="text-2xl text-gray-500">/ 9</span>
+                            {{ piotroski_outputs.total_score }} <span class="text-2xl text-gray-500 dark:text-gray-400 dark:text-gray-500">/ 9</span>
                         </div>
                     </div>
                     <div>
-                        <div class="text-xs uppercase tracking-wide text-gray-500">Classification</div>
+                        <div class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 dark:text-gray-500">Classification</div>
                         <div class="text-2xl font-semibold {{ band_color }}">
                             {{ piotroski_outputs.classification }}
                         </div>
                     </div>
                 </div>
-                <div class="bg-white border border-gray-200 rounded p-4 text-sm text-gray-600">
-                    <div class="font-semibold text-gray-800 mb-1">Interpretation</div>
+                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded p-4 text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">
+                    <div class="font-semibold text-gray-800 dark:text-gray-200 mb-1">Interpretation</div>
                     Weak fundamentals across the board. Piotroski found
                     low-F-Score firms historically underperformed; treat
                     "cheap" with caution here.
@@ -85,9 +85,9 @@
         {% endwith %}
     {% endif %}
 
-    <div class="bg-white border border-gray-200 rounded overflow-hidden">
+    <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded overflow-hidden">
         <table class="w-full text-sm">
-            <thead class="bg-gray-50 text-gray-600 text-left text-xs uppercase tracking-wide">
+            <thead class="bg-gray-50 dark:bg-slate-800/50 text-gray-600 dark:text-gray-400 dark:text-gray-500 text-left text-xs uppercase tracking-wide">
                 <tr>
                     <th class="px-3 py-2 w-8">#</th>
                     <th class="px-3 py-2">Criterion</th>
@@ -98,26 +98,26 @@
             <tbody class="divide-y divide-gray-100">
                 {% for c in piotroski_outputs.criteria %}
                 <tr>
-                    <td class="px-3 py-2 font-mono text-gray-500">{{ forloop.counter }}</td>
+                    <td class="px-3 py-2 font-mono text-gray-500 dark:text-gray-400 dark:text-gray-500">{{ forloop.counter }}</td>
                     <td class="px-3 py-2">
                         <div class="font-medium">{{ c.name }}</div>
-                        <div class="text-xs text-gray-500">{{ c.description }}</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500">{{ c.description }}</div>
                     </td>
                     <td class="px-3 py-2 text-center">
                         {% if c.score == 1 %}
-                            <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-100 text-green-700 font-bold">&check;</span>
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-100 text-green-700 dark:text-green-400 font-bold">&check;</span>
                         {% else %}
-                            <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-red-100 text-red-700 font-bold">&times;</span>
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-red-100 text-red-700 dark:text-red-400 font-bold">&times;</span>
                         {% endif %}
                     </td>
-                    <td class="px-3 py-2 text-gray-700">{{ c.explanation }}</td>
+                    <td class="px-3 py-2 text-gray-700 dark:text-gray-300">{{ c.explanation }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 
-    <div class="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-900 mt-4">
+    <div class="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded p-3 text-sm text-blue-900 mt-4">
         The Piotroski F-Score (Joseph Piotroski, 2000) is a 9-point checklist
         that identifies financial strength among value stocks. Empirically,
         high-F-Score / low-price-to-book stocks outperformed by ~7.5% annually.

@@ -1,18 +1,18 @@
 {% load format_filters %}
 
 <div class="space-y-4">
-    <div class="flex items-baseline justify-between flex-wrap gap-2 border-b border-gray-200 pb-2">
+    <div class="flex items-baseline justify-between flex-wrap gap-2 border-b border-gray-200 dark:border-slate-800 pb-2">
         <div>
-            <div class="text-xs uppercase tracking-wide text-gray-500">{{ model_category }}</div>
+            <div class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 dark:text-gray-500">{{ model_category }}</div>
             <h2 class="text-2xl font-semibold">{{ model_label }}</h2>
         </div>
         <a href="{% url 'valuation:models_index' ticker=ticker %}"
            hx-get="{% url 'valuation:models_index' ticker=ticker %}"
            hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
-           class="text-sm text-blue-600 hover:underline">← All models</a>
+           class="text-sm text-blue-600 dark:text-blue-400 hover:underline">← All models</a>
     </div>
 
-    <div class="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-900">
+    <div class="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded p-3 text-sm text-blue-900">
         <strong>EPV</strong> values the firm assuming it earns its current normalized
         earnings <em>forever, with no growth</em>. Compare EPV to the current price:
         if EPV &gt;&gt; price, the market is pricing in declining earnings;
@@ -29,56 +29,56 @@
                   hx-target="#epv-results"
                   hx-swap="innerHTML"
                   hx-trigger="change delay:400ms, submit"
-                  class="space-y-3 bg-white border border-gray-200 rounded p-4">
+                  class="space-y-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded p-4">
                 <input type="hidden" name="partial" value="results">
 
                 <label class="block">
-                    <span class="text-sm text-gray-700">Normalized EBIT</span>
+                    <span class="text-sm text-gray-700 dark:text-gray-300">Normalized EBIT</span>
                     <div class="flex items-center gap-2">
                         <input type="number" name="normalized_ebit" step="1000000"
                                value="{{ epv_inputs.normalized_ebit|stringformat:".2f" }}"
-                               class="w-full px-2 py-1 border border-gray-300 rounded font-mono text-sm">
-                        <span class="text-xs text-gray-500">{{ profile.currency }}</span>
+                               class="w-full px-2 py-1 border border-gray-300 dark:border-slate-700 rounded font-mono text-sm">
+                        <span class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500">{{ profile.currency }}</span>
                     </div>
-                    <span class="text-xs text-gray-500">avg over {{ epv_inputs.years_of_history }}y</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500">avg over {{ epv_inputs.years_of_history }}y</span>
                 </label>
 
                 <label class="block">
-                    <span class="text-sm text-gray-700">Depreciation &amp; amortization</span>
+                    <span class="text-sm text-gray-700 dark:text-gray-300">Depreciation &amp; amortization</span>
                     <div class="flex items-center gap-2">
                         <input type="number" name="depreciation_amortization" step="1000000"
                                value="{{ epv_inputs.depreciation_amortization|stringformat:".2f" }}"
-                               class="w-full px-2 py-1 border border-gray-300 rounded font-mono text-sm">
-                        <span class="text-xs text-gray-500">{{ profile.currency }}</span>
+                               class="w-full px-2 py-1 border border-gray-300 dark:border-slate-700 rounded font-mono text-sm">
+                        <span class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500">{{ profile.currency }}</span>
                     </div>
                 </label>
 
                 <label class="block">
-                    <span class="text-sm text-gray-700">Maintenance capex</span>
+                    <span class="text-sm text-gray-700 dark:text-gray-300">Maintenance capex</span>
                     <div class="flex items-center gap-2">
                         <input type="number" name="maintenance_capex" step="1000000"
                                value="{{ epv_inputs.maintenance_capex|stringformat:".2f" }}"
-                               class="w-full px-2 py-1 border border-gray-300 rounded font-mono text-sm">
-                        <span class="text-xs text-gray-500">{{ profile.currency }}</span>
+                               class="w-full px-2 py-1 border border-gray-300 dark:border-slate-700 rounded font-mono text-sm">
+                        <span class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500">{{ profile.currency }}</span>
                     </div>
-                    <span class="text-xs text-gray-500">default: D&amp;A (Greenwald heuristic)</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500">default: D&amp;A (Greenwald heuristic)</span>
                 </label>
 
                 <label class="block">
-                    <span class="text-sm text-gray-700">Tax rate</span>
+                    <span class="text-sm text-gray-700 dark:text-gray-300">Tax rate</span>
                     <input type="number" name="tax_rate" step="0.01"
                            value="{{ epv_inputs.tax_rate|stringformat:".4f" }}"
-                           class="w-full px-2 py-1 border border-gray-300 rounded font-mono text-sm">
+                           class="w-full px-2 py-1 border border-gray-300 dark:border-slate-700 rounded font-mono text-sm">
                 </label>
 
                 <label class="block">
-                    <span class="text-sm text-gray-700">WACC (discount rate)</span>
+                    <span class="text-sm text-gray-700 dark:text-gray-300">WACC (discount rate)</span>
                     <input type="number" name="wacc" step="0.005"
                            value="{{ epv_inputs.wacc|stringformat:".4f" }}"
-                           class="w-full px-2 py-1 border border-gray-300 rounded font-mono text-sm">
+                           class="w-full px-2 py-1 border border-gray-300 dark:border-slate-700 rounded font-mono text-sm">
                 </label>
 
-                <div class="pt-2 border-t border-gray-200 text-xs text-gray-500 space-y-0.5">
+                <div class="pt-2 border-t border-gray-200 dark:border-slate-800 text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500 space-y-0.5">
                     <div>Net debt: <span class="font-mono">{{ epv_inputs.net_debt|money }}</span></div>
                     <div>Diluted shares: <span class="font-mono">{{ epv_inputs.shares_outstanding|humanize }}</span></div>
                     <div>Years of EBIT history: <span class="font-mono">{{ epv_inputs.years_of_history }}</span></div>

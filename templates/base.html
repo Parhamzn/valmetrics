@@ -76,6 +76,23 @@
     <style>
       body { font-feature-settings: "cv02", "cv03", "cv04", "cv11"; }
       [x-cloak] { display: none !important; }
+      /* Default styling for form controls in dark mode.
+         Avoids having to add dark: variants to every <input>/<select>/<textarea>
+         in every model assumption form. Specific classes can still override. */
+      .dark input[type="number"],
+      .dark input[type="text"],
+      .dark input[type="search"],
+      .dark input[type="email"],
+      .dark input:not([type]),
+      .dark select,
+      .dark textarea {
+        background-color: rgb(30 41 59);   /* slate-800 */
+        color: rgb(243 244 246);            /* gray-100 */
+        border-color: rgb(51 65 85);        /* slate-700 */
+      }
+      .dark input::placeholder, .dark textarea::placeholder { color: rgb(100 116 139); }
+      /* Native autofill background in dark mode */
+      .dark input:-webkit-autofill { -webkit-text-fill-color: rgb(243 244 246); -webkit-box-shadow: 0 0 0 30px rgb(30 41 59) inset; }
     </style>
     <script src="https://unpkg.com/htmx.org@1.9.12"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>

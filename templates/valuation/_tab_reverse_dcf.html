@@ -1,18 +1,18 @@
 {% load format_filters %}
 
 <div class="space-y-4">
-    <div class="flex items-baseline justify-between flex-wrap gap-2 border-b border-gray-200 pb-2">
+    <div class="flex items-baseline justify-between flex-wrap gap-2 border-b border-gray-200 dark:border-slate-800 pb-2">
         <div>
-            <div class="text-xs uppercase tracking-wide text-gray-500">{{ model_category }}</div>
+            <div class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 dark:text-gray-500">{{ model_category }}</div>
             <h2 class="text-2xl font-semibold">{{ model_label }}</h2>
         </div>
         <a href="{% url 'valuation:models_index' ticker=ticker %}"
            hx-get="{% url 'valuation:models_index' ticker=ticker %}"
            hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
-           class="text-sm text-blue-600 hover:underline">← All models</a>
+           class="text-sm text-blue-600 dark:text-blue-400 hover:underline">← All models</a>
     </div>
 
-    <div class="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-900">
+    <div class="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded p-3 text-sm text-blue-900">
         Reverse DCF inverts the question: instead of asking "what's the right
         price?", it asks "what revenue growth rate is the market already
         pricing in?". If the implied growth is wildly above what's plausible
@@ -20,7 +20,7 @@
     </div>
 
     {% if reverse_error %}
-        <div class="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">
+        <div class="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-400 px-3 py-2 rounded text-sm">
             {{ reverse_error }}
         </div>
     {% endif %}
@@ -32,7 +32,7 @@
             <h3 class="text-lg font-semibold mb-3">Fixed assumptions</h3>
 
             {% if reverse_inputs %}
-            <div class="bg-yellow-50 border border-yellow-200 rounded p-3 text-sm text-yellow-900 mb-3">
+            <div class="bg-yellow-50 dark:bg-yellow-950/40 border border-yellow-200 dark:border-yellow-900 rounded p-3 text-sm text-yellow-900 mb-3">
                 Solving against current price
                 <span class="font-mono">{{ quote.currency }} {{ current_price|floatformat:2 }}</span>.
             </div>
@@ -42,67 +42,67 @@
                   hx-target="#reverse-results"
                   hx-swap="innerHTML"
                   hx-trigger="change delay:400ms, submit"
-                  class="space-y-3 bg-white border border-gray-200 rounded p-4">
+                  class="space-y-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded p-4">
                 <input type="hidden" name="partial" value="results">
 
                 <label class="block">
-                    <span class="text-sm text-gray-700">EBIT margin</span>
+                    <span class="text-sm text-gray-700 dark:text-gray-300">EBIT margin</span>
                     <input type="number" name="ebit_margin" step="0.01"
                            value="{{ reverse_inputs.ebit_margin|stringformat:".4f" }}"
-                           class="w-full px-2 py-1 border border-gray-300 rounded font-mono text-sm">
+                           class="w-full px-2 py-1 border border-gray-300 dark:border-slate-700 rounded font-mono text-sm">
                 </label>
 
                 <label class="block">
-                    <span class="text-sm text-gray-700">Tax rate</span>
+                    <span class="text-sm text-gray-700 dark:text-gray-300">Tax rate</span>
                     <input type="number" name="tax_rate" step="0.01"
                            value="{{ reverse_inputs.tax_rate|stringformat:".4f" }}"
-                           class="w-full px-2 py-1 border border-gray-300 rounded font-mono text-sm">
+                           class="w-full px-2 py-1 border border-gray-300 dark:border-slate-700 rounded font-mono text-sm">
                 </label>
 
                 <label class="block">
-                    <span class="text-sm text-gray-700">Reinvestment rate</span>
+                    <span class="text-sm text-gray-700 dark:text-gray-300">Reinvestment rate</span>
                     <input type="number" name="reinvestment_rate" step="0.01"
                            value="{{ reverse_inputs.reinvestment_rate|stringformat:".4f" }}"
-                           class="w-full px-2 py-1 border border-gray-300 rounded font-mono text-sm">
+                           class="w-full px-2 py-1 border border-gray-300 dark:border-slate-700 rounded font-mono text-sm">
                 </label>
 
                 <label class="block">
-                    <span class="text-sm text-gray-700">Terminal growth</span>
+                    <span class="text-sm text-gray-700 dark:text-gray-300">Terminal growth</span>
                     <input type="number" name="terminal_growth" step="0.005"
                            value="{{ reverse_inputs.terminal_growth|stringformat:".4f" }}"
-                           class="w-full px-2 py-1 border border-gray-300 rounded font-mono text-sm">
+                           class="w-full px-2 py-1 border border-gray-300 dark:border-slate-700 rounded font-mono text-sm">
                 </label>
 
                 <label class="block">
-                    <span class="text-sm text-gray-700">WACC (discount rate)</span>
+                    <span class="text-sm text-gray-700 dark:text-gray-300">WACC (discount rate)</span>
                     <input type="number" name="wacc" step="0.005"
                            value="{{ reverse_inputs.wacc|stringformat:".4f" }}"
-                           class="w-full px-2 py-1 border border-gray-300 rounded font-mono text-sm">
+                           class="w-full px-2 py-1 border border-gray-300 dark:border-slate-700 rounded font-mono text-sm">
                 </label>
 
                 <label class="block">
-                    <span class="text-sm text-gray-700">Projection years</span>
+                    <span class="text-sm text-gray-700 dark:text-gray-300">Projection years</span>
                     <input type="number" name="projection_years" step="1" min="1" max="20"
                            value="{{ reverse_inputs.projection_years }}"
-                           class="w-full px-2 py-1 border border-gray-300 rounded font-mono text-sm">
+                           class="w-full px-2 py-1 border border-gray-300 dark:border-slate-700 rounded font-mono text-sm">
                 </label>
 
                 <div class="grid grid-cols-2 gap-2">
                     <label class="block">
-                        <span class="text-sm text-gray-700">Search lower</span>
+                        <span class="text-sm text-gray-700 dark:text-gray-300">Search lower</span>
                         <input type="number" name="search_lower" step="0.01"
                                value="{{ reverse_inputs.search_lower|stringformat:".4f" }}"
-                               class="w-full px-2 py-1 border border-gray-300 rounded font-mono text-sm">
+                               class="w-full px-2 py-1 border border-gray-300 dark:border-slate-700 rounded font-mono text-sm">
                     </label>
                     <label class="block">
-                        <span class="text-sm text-gray-700">Search upper</span>
+                        <span class="text-sm text-gray-700 dark:text-gray-300">Search upper</span>
                         <input type="number" name="search_upper" step="0.01"
                                value="{{ reverse_inputs.search_upper|stringformat:".4f" }}"
-                               class="w-full px-2 py-1 border border-gray-300 rounded font-mono text-sm">
+                               class="w-full px-2 py-1 border border-gray-300 dark:border-slate-700 rounded font-mono text-sm">
                     </label>
                 </div>
 
-                <div class="pt-2 border-t border-gray-200 text-xs text-gray-500 space-y-0.5">
+                <div class="pt-2 border-t border-gray-200 dark:border-slate-800 text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500 space-y-0.5">
                     <div>Base revenue: <span class="font-mono">{{ reverse_inputs.base_revenue|money }}</span></div>
                     <div>Base FCFF: <span class="font-mono">{{ reverse_inputs.base_fcff|money }}</span></div>
                     <div>Net debt: <span class="font-mono">{{ reverse_inputs.net_debt|money }}</span></div>
@@ -114,7 +114,7 @@
                 </button>
             </form>
             {% else %}
-            <div class="text-gray-500 text-sm">No inputs available.</div>
+            <div class="text-gray-500 dark:text-gray-400 dark:text-gray-500 text-sm">No inputs available.</div>
             {% endif %}
         </aside>
 

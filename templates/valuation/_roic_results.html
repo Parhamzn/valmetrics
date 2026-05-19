@@ -1,31 +1,31 @@
 {% load format_filters %}
 
 {% if roic_error %}
-    <div class="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">
+    <div class="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-400 px-3 py-2 rounded text-sm">
         Couldn't compute ROIC: {{ roic_error }}
     </div>
 {% elif not roic_outputs or not roic_outputs.points %}
-    <div class="text-gray-500">No income / balance history available for this ticker.</div>
+    <div class="text-gray-500 dark:text-gray-400 dark:text-gray-500">No income / balance history available for this ticker.</div>
 {% else %}
 
     <!-- Headline cards -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-        <div class="bg-white border border-gray-200 rounded p-3">
-            <div class="text-xs uppercase text-gray-500">Latest ROIC</div>
+        <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded p-3">
+            <div class="text-xs uppercase text-gray-500 dark:text-gray-400 dark:text-gray-500">Latest ROIC</div>
             <div class="text-2xl font-mono">{{ roic_outputs.latest.roic|percent }}</div>
-            <div class="text-xs text-gray-500 mt-0.5">
+            <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500 mt-0.5">
                 {{ roic_outputs.latest.period_end|date:"Y" }}
             </div>
         </div>
 
-        <div class="bg-white border border-gray-200 rounded p-3">
-            <div class="text-xs uppercase text-gray-500">Avg ROIC ({{ roic_outputs.points|length }}y)</div>
+        <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded p-3">
+            <div class="text-xs uppercase text-gray-500 dark:text-gray-400 dark:text-gray-500">Avg ROIC ({{ roic_outputs.points|length }}y)</div>
             <div class="flex items-baseline justify-between mt-1">
                 <div class="text-2xl font-mono">{{ roic_outputs.avg_roic|percent }}</div>
                 <div class="text-sm font-medium
-                    {% if roic_outputs.trend == 'expanding' %}text-green-600
-                    {% elif roic_outputs.trend == 'compressing' %}text-red-600
-                    {% else %}text-gray-500{% endif %}">
+                    {% if roic_outputs.trend == 'expanding' %}text-green-600 dark:text-green-400
+                    {% elif roic_outputs.trend == 'compressing' %}text-red-600 dark:text-red-400
+                    {% else %}text-gray-500 dark:text-gray-400 dark:text-gray-500{% endif %}">
                     {% if roic_outputs.trend == 'expanding' %}↑ expanding
                     {% elif roic_outputs.trend == 'compressing' %}↓ compressing
                     {% elif roic_outputs.trend == 'stable' %}→ stable
@@ -34,27 +34,27 @@
             </div>
         </div>
 
-        <div class="bg-white border border-gray-200 rounded p-3
-            {% if roic_outputs.creates_value is True %}border-green-200 bg-green-50
-            {% elif roic_outputs.creates_value is False %}border-red-200 bg-red-50
+        <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded p-3
+            {% if roic_outputs.creates_value is True %}border-green-200 bg-green-50 dark:bg-green-950/40
+            {% elif roic_outputs.creates_value is False %}border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/40
             {% endif %}">
-            <div class="text-xs uppercase text-gray-500">vs WACC ({{ roic_inputs.wacc_estimate|percent }})</div>
+            <div class="text-xs uppercase text-gray-500 dark:text-gray-400 dark:text-gray-500">vs WACC ({{ roic_inputs.wacc_estimate|percent }})</div>
             {% if roic_outputs.creates_value is True %}
-                <div class="text-base font-medium text-green-700 mt-1">
+                <div class="text-base font-medium text-green-700 dark:text-green-400 mt-1">
                     ROIC {{ roic_outputs.latest.roic|percent }} vs WACC {{ roic_inputs.wacc_estimate|percent }}:
                 </div>
-                <div class="text-sm text-green-700">
+                <div class="text-sm text-green-700 dark:text-green-400">
                     creates <strong>{{ roic_spread_pts|floatformat:1 }} pts</strong> of value
                 </div>
             {% elif roic_outputs.creates_value is False %}
-                <div class="text-base font-medium text-red-700 mt-1">
+                <div class="text-base font-medium text-red-700 dark:text-red-400 mt-1">
                     ROIC {{ roic_outputs.latest.roic|percent }} vs WACC {{ roic_inputs.wacc_estimate|percent }}:
                 </div>
-                <div class="text-sm text-red-700">
+                <div class="text-sm text-red-700 dark:text-red-400">
                     destroys <strong>{{ roic_spread_pts|floatformat:1 }} pts</strong> of value
                 </div>
             {% else %}
-                <div class="text-base font-medium text-gray-700 mt-1">
+                <div class="text-base font-medium text-gray-700 dark:text-gray-300 mt-1">
                     ROIC unavailable for the latest period.
                 </div>
             {% endif %}
@@ -62,10 +62,10 @@
     </div>
 
     <!-- Bar chart: ROIC per year, with a horizontal WACC line -->
-    <div class="bg-white border border-gray-200 rounded p-4 mb-4">
+    <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded p-4 mb-4">
         <div class="flex items-baseline justify-between mb-2">
-            <h4 class="text-sm font-semibold text-gray-700">ROIC history</h4>
-            <div class="text-xs text-gray-500 flex items-center gap-3">
+            <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300">ROIC history</h4>
+            <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500 flex items-center gap-3">
                 <span class="flex items-center gap-1">
                     <span class="inline-block w-3 h-3 rounded-sm bg-emerald-500"></span> ROIC &gt; WACC
                 </span>
@@ -83,7 +83,7 @@
                 {% if roic_wacc_h_pct is not None %}
                 <div class="absolute left-0 right-0 border-t border-dashed border-gray-600 z-10"
                      style="bottom: {{ roic_wacc_h_pct }}%;">
-                    <span class="absolute -top-3 right-0 text-[10px] text-gray-600 bg-white px-1">
+                    <span class="absolute -top-3 right-0 text-[10px] text-gray-600 dark:text-gray-400 dark:text-gray-500 bg-white dark:bg-slate-900 px-1">
                         WACC {{ roic_inputs.wacc_estimate|percent }}
                     </span>
                 </div>
@@ -101,23 +101,23 @@
             </div>
             <div class="flex gap-3 mt-1">
                 {% for row in roic_chart_rows %}
-                <div class="flex-1 min-w-[2.5rem] text-center text-[10px] text-gray-500">
+                <div class="flex-1 min-w-[2.5rem] text-center text-[10px] text-gray-500 dark:text-gray-400 dark:text-gray-500">
                     {{ row.period_end|date:"Y" }}
                 </div>
                 {% endfor %}
             </div>
         </div>
         {% if roic_chart_max %}
-        <div class="text-[10px] text-gray-400 mt-1">scale: 0% – {{ roic_chart_max|percent }}</div>
+        <div class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">scale: 0% – {{ roic_chart_max|percent }}</div>
         {% endif %}
     </div>
 
     <!-- Historical table -->
-    <div class="bg-white border border-gray-200 rounded p-4 overflow-x-auto">
-        <h4 class="text-sm font-semibold text-gray-700 mb-3">Per-year breakdown</h4>
+    <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded p-4 overflow-x-auto">
+        <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Per-year breakdown</h4>
         <table class="w-full text-sm">
             <thead>
-                <tr class="text-xs uppercase text-gray-500 border-b border-gray-200">
+                <tr class="text-xs uppercase text-gray-500 dark:text-gray-400 dark:text-gray-500 border-b border-gray-200 dark:border-slate-800">
                     <th class="text-left py-1 pr-3">Year</th>
                     <th class="text-right py-1 px-2">NOPAT</th>
                     <th class="text-right py-1 px-2">Invested capital</th>
@@ -126,14 +126,14 @@
             </thead>
             <tbody class="font-mono">
                 {% for p in roic_outputs.points %}
-                <tr class="border-b border-gray-100">
-                    <td class="py-1 pr-3 text-gray-700">{{ p.period_end|date:"Y" }}</td>
+                <tr class="border-b border-gray-100 dark:border-slate-800">
+                    <td class="py-1 pr-3 text-gray-700 dark:text-gray-300">{{ p.period_end|date:"Y" }}</td>
                     <td class="text-right py-1 px-2">{{ p.nopat|money }}</td>
                     <td class="text-right py-1 px-2">{{ p.invested_capital|money }}</td>
                     <td class="text-right py-1 px-2
-                        {% if p.roic is not None and p.roic > roic_inputs.wacc_estimate %}text-green-700
-                        {% elif p.roic is not None %}text-red-700
-                        {% else %}text-gray-400{% endif %}">
+                        {% if p.roic is not None and p.roic > roic_inputs.wacc_estimate %}text-green-700 dark:text-green-400
+                        {% elif p.roic is not None %}text-red-700 dark:text-red-400
+                        {% else %}text-gray-400 dark:text-gray-500{% endif %}">
                         {{ p.roic|percent }}
                     </td>
                 </tr>

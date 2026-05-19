@@ -1,11 +1,11 @@
 {% load format_filters %}
 
 {% if margin_error %}
-    <div class="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">
+    <div class="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-400 px-3 py-2 rounded text-sm">
         Couldn't compute margin analysis: {{ margin_error }}
     </div>
 {% elif not margin_outputs or not margin_outputs.points %}
-    <div class="text-gray-500">No income-statement history available for this ticker.</div>
+    <div class="text-gray-500 dark:text-gray-400 dark:text-gray-500">No income-statement history available for this ticker.</div>
 {% else %}
 
     {# ---- Trend arrow + color helpers (inlined to avoid a custom tag) ---- #}
@@ -15,65 +15,65 @@
     <!-- Headline cards: avg margin + trend per line -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
         {# Gross margin card #}
-        <div class="bg-white border border-gray-200 rounded p-3">
-            <div class="text-xs uppercase text-gray-500">Avg gross margin</div>
+        <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded p-3">
+            <div class="text-xs uppercase text-gray-500 dark:text-gray-400 dark:text-gray-500">Avg gross margin</div>
             <div class="flex items-baseline justify-between mt-1">
                 <div class="text-2xl font-mono">{{ margin_outputs.avg_gross_margin|percent }}</div>
                 <div class="text-sm font-medium
-                    {% if margin_outputs.trend_gross == 'expanding' %}text-green-600
-                    {% elif margin_outputs.trend_gross == 'compressing' %}text-red-600
-                    {% else %}text-gray-500{% endif %}">
+                    {% if margin_outputs.trend_gross == 'expanding' %}text-green-600 dark:text-green-400
+                    {% elif margin_outputs.trend_gross == 'compressing' %}text-red-600 dark:text-red-400
+                    {% else %}text-gray-500 dark:text-gray-400 dark:text-gray-500{% endif %}">
                     {% if margin_outputs.trend_gross == 'expanding' %}↑ expanding
                     {% elif margin_outputs.trend_gross == 'compressing' %}↓ compressing
                     {% elif margin_outputs.trend_gross == 'stable' %}→ stable
                     {% else %}· {{ margin_outputs.trend_gross }}{% endif %}
                 </div>
             </div>
-            <div class="text-xs text-gray-500 mt-0.5">latest: {{ margin_outputs.latest.gross_margin|percent }}</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500 mt-0.5">latest: {{ margin_outputs.latest.gross_margin|percent }}</div>
         </div>
 
         {# Operating margin card #}
-        <div class="bg-white border border-gray-200 rounded p-3">
-            <div class="text-xs uppercase text-gray-500">Avg operating margin</div>
+        <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded p-3">
+            <div class="text-xs uppercase text-gray-500 dark:text-gray-400 dark:text-gray-500">Avg operating margin</div>
             <div class="flex items-baseline justify-between mt-1">
                 <div class="text-2xl font-mono">{{ margin_outputs.avg_operating_margin|percent }}</div>
                 <div class="text-sm font-medium
-                    {% if margin_outputs.trend_operating == 'expanding' %}text-green-600
-                    {% elif margin_outputs.trend_operating == 'compressing' %}text-red-600
-                    {% else %}text-gray-500{% endif %}">
+                    {% if margin_outputs.trend_operating == 'expanding' %}text-green-600 dark:text-green-400
+                    {% elif margin_outputs.trend_operating == 'compressing' %}text-red-600 dark:text-red-400
+                    {% else %}text-gray-500 dark:text-gray-400 dark:text-gray-500{% endif %}">
                     {% if margin_outputs.trend_operating == 'expanding' %}↑ expanding
                     {% elif margin_outputs.trend_operating == 'compressing' %}↓ compressing
                     {% elif margin_outputs.trend_operating == 'stable' %}→ stable
                     {% else %}· {{ margin_outputs.trend_operating }}{% endif %}
                 </div>
             </div>
-            <div class="text-xs text-gray-500 mt-0.5">latest: {{ margin_outputs.latest.operating_margin|percent }}</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500 mt-0.5">latest: {{ margin_outputs.latest.operating_margin|percent }}</div>
         </div>
 
         {# Net profit margin card #}
-        <div class="bg-white border border-gray-200 rounded p-3">
-            <div class="text-xs uppercase text-gray-500">Avg net margin</div>
+        <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded p-3">
+            <div class="text-xs uppercase text-gray-500 dark:text-gray-400 dark:text-gray-500">Avg net margin</div>
             <div class="flex items-baseline justify-between mt-1">
                 <div class="text-2xl font-mono">{{ margin_outputs.avg_profit_margin|percent }}</div>
                 <div class="text-sm font-medium
-                    {% if margin_outputs.trend_profit == 'expanding' %}text-green-600
-                    {% elif margin_outputs.trend_profit == 'compressing' %}text-red-600
-                    {% else %}text-gray-500{% endif %}">
+                    {% if margin_outputs.trend_profit == 'expanding' %}text-green-600 dark:text-green-400
+                    {% elif margin_outputs.trend_profit == 'compressing' %}text-red-600 dark:text-red-400
+                    {% else %}text-gray-500 dark:text-gray-400 dark:text-gray-500{% endif %}">
                     {% if margin_outputs.trend_profit == 'expanding' %}↑ expanding
                     {% elif margin_outputs.trend_profit == 'compressing' %}↓ compressing
                     {% elif margin_outputs.trend_profit == 'stable' %}→ stable
                     {% else %}· {{ margin_outputs.trend_profit }}{% endif %}
                 </div>
             </div>
-            <div class="text-xs text-gray-500 mt-0.5">latest: {{ margin_outputs.latest.profit_margin|percent }}</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500 mt-0.5">latest: {{ margin_outputs.latest.profit_margin|percent }}</div>
         </div>
     </div>
 
     <!-- Bar chart: three bars per year (gross / op / net). Pure HTML + CSS. -->
-    <div class="bg-white border border-gray-200 rounded p-4 mb-4">
+    <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded p-4 mb-4">
         <div class="flex items-baseline justify-between mb-2">
-            <h4 class="text-sm font-semibold text-gray-700">Margin history</h4>
-            <div class="text-xs text-gray-500 flex items-center gap-3">
+            <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Margin history</h4>
+            <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500 flex items-center gap-3">
                 <span class="flex items-center gap-1">
                     <span class="inline-block w-3 h-3 rounded-sm bg-emerald-500"></span> gross
                 </span>
@@ -97,21 +97,21 @@
                     <div class="bg-amber-500 rounded-sm" style="width: 8px; height: {{ row.net_h }}%;"
                          title="Net {{ row.profit_margin|percent }}"></div>
                 </div>
-                <div class="text-[10px] text-gray-500 mt-1">{{ row.period_end|date:"Y" }}</div>
+                <div class="text-[10px] text-gray-500 dark:text-gray-400 dark:text-gray-500 mt-1">{{ row.period_end|date:"Y" }}</div>
             </div>
             {% endfor %}
         </div>
         {% if margin_chart_max %}
-        <div class="text-[10px] text-gray-400 mt-1">scale: 0% – {{ margin_chart_max|percent }}</div>
+        <div class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">scale: 0% – {{ margin_chart_max|percent }}</div>
         {% endif %}
     </div>
 
     <!-- Historical table: oldest left -> newest right -->
-    <div class="bg-white border border-gray-200 rounded p-4 overflow-x-auto">
-        <h4 class="text-sm font-semibold text-gray-700 mb-3">Historical margins</h4>
+    <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded p-4 overflow-x-auto">
+        <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Historical margins</h4>
         <table class="w-full text-sm">
             <thead>
-                <tr class="text-xs uppercase text-gray-500 border-b border-gray-200">
+                <tr class="text-xs uppercase text-gray-500 dark:text-gray-400 dark:text-gray-500 border-b border-gray-200 dark:border-slate-800">
                     <th class="text-left py-1 pr-3">Margin</th>
                     {% for p in margin_outputs.points %}
                         <th class="text-right py-1 px-2">{{ p.period_end|date:"Y" }}</th>
@@ -119,20 +119,20 @@
                 </tr>
             </thead>
             <tbody class="font-mono">
-                <tr class="border-b border-gray-100">
-                    <td class="py-1 pr-3 text-gray-700">Gross</td>
+                <tr class="border-b border-gray-100 dark:border-slate-800">
+                    <td class="py-1 pr-3 text-gray-700 dark:text-gray-300">Gross</td>
                     {% for p in margin_outputs.points %}
                         <td class="text-right py-1 px-2">{{ p.gross_margin|percent }}</td>
                     {% endfor %}
                 </tr>
-                <tr class="border-b border-gray-100">
-                    <td class="py-1 pr-3 text-gray-700">Operating</td>
+                <tr class="border-b border-gray-100 dark:border-slate-800">
+                    <td class="py-1 pr-3 text-gray-700 dark:text-gray-300">Operating</td>
                     {% for p in margin_outputs.points %}
                         <td class="text-right py-1 px-2">{{ p.operating_margin|percent }}</td>
                     {% endfor %}
                 </tr>
                 <tr>
-                    <td class="py-1 pr-3 text-gray-700">Net</td>
+                    <td class="py-1 pr-3 text-gray-700 dark:text-gray-300">Net</td>
                     {% for p in margin_outputs.points %}
                         <td class="text-right py-1 px-2">{{ p.profit_margin|percent }}</td>
                     {% endfor %}

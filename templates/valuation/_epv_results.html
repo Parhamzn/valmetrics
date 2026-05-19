@@ -1,27 +1,27 @@
 {% load format_filters %}
 
 {% if epv_error %}
-    <div class="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">
+    <div class="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-400 px-3 py-2 rounded text-sm">
         Couldn't compute EPV: {{ epv_error }}
     </div>
 {% elif not epv_outputs %}
-    <div class="text-gray-500">No result computed.</div>
+    <div class="text-gray-500 dark:text-gray-400 dark:text-gray-500">No result computed.</div>
 {% else %}
 
     <!-- Headline -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-        <div class="bg-white border border-gray-200 rounded p-3">
-            <div class="text-xs uppercase text-gray-500">EPV per share</div>
+        <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded p-3">
+            <div class="text-xs uppercase text-gray-500 dark:text-gray-400 dark:text-gray-500">EPV per share</div>
             <div class="text-2xl font-mono">{{ profile.currency }} {{ epv_outputs.epv_per_share|floatformat:2 }}</div>
         </div>
-        <div class="bg-white border border-gray-200 rounded p-3">
-            <div class="text-xs uppercase text-gray-500">Current price</div>
+        <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded p-3">
+            <div class="text-xs uppercase text-gray-500 dark:text-gray-400 dark:text-gray-500">Current price</div>
             <div class="text-2xl font-mono">
                 {% if quote %}{{ quote.currency }} {{ quote.price|floatformat:2 }}{% else %}—{% endif %}
             </div>
         </div>
-        <div class="bg-white border border-gray-200 rounded p-3">
-            <div class="text-xs uppercase text-gray-500">Upside</div>
+        <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded p-3">
+            <div class="text-xs uppercase text-gray-500 dark:text-gray-400 dark:text-gray-500">Upside</div>
             <div class="text-2xl font-mono {{ upside_pct|signed_color }}">
                 {% if upside_pct is not None %}
                     {{ upside_pct|percent }}
@@ -31,51 +31,51 @@
     </div>
 
     {% if epv_outputs.equity_value < 0 %}
-    <div class="bg-yellow-50 border border-yellow-200 text-yellow-900 px-3 py-2 rounded text-sm mb-4">
+    <div class="bg-yellow-50 dark:bg-yellow-950/40 border border-yellow-200 dark:border-yellow-900 text-yellow-900 px-3 py-2 rounded text-sm mb-4">
         EPV implies <strong>negative equity value</strong> — the firm's normalized
         earnings power is below the cost of its net debt. Treat with caution.
     </div>
     {% endif %}
 
     <!-- Value breakdown -->
-    <div class="bg-white border border-gray-200 rounded p-4">
-        <h4 class="text-sm font-semibold text-gray-700 mb-3">Valuation breakdown</h4>
+    <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded p-4">
+        <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Valuation breakdown</h4>
         <dl class="grid grid-cols-2 gap-y-1.5 text-sm">
-            <dt class="text-gray-600">Normalized EBIT</dt>
+            <dt class="text-gray-600 dark:text-gray-400 dark:text-gray-500">Normalized EBIT</dt>
             <dd class="text-right font-mono">{{ epv_inputs.normalized_ebit|money }}</dd>
 
-            <dt class="text-gray-600">+ Depreciation &amp; amortization</dt>
+            <dt class="text-gray-600 dark:text-gray-400 dark:text-gray-500">+ Depreciation &amp; amortization</dt>
             <dd class="text-right font-mono">{{ epv_inputs.depreciation_amortization|money }}</dd>
 
-            <dt class="text-gray-600">− Maintenance capex</dt>
+            <dt class="text-gray-600 dark:text-gray-400 dark:text-gray-500">− Maintenance capex</dt>
             <dd class="text-right font-mono">{{ epv_inputs.maintenance_capex|money }}</dd>
 
-            <dt class="text-gray-600 font-medium border-t border-gray-200 pt-2 mt-1">= Adjusted EBIT</dt>
-            <dd class="text-right font-mono font-medium border-t border-gray-200 pt-2 mt-1">{{ epv_outputs.adjusted_ebit|money }}</dd>
+            <dt class="text-gray-600 dark:text-gray-400 dark:text-gray-500 font-medium border-t border-gray-200 dark:border-slate-800 pt-2 mt-1">= Adjusted EBIT</dt>
+            <dd class="text-right font-mono font-medium border-t border-gray-200 dark:border-slate-800 pt-2 mt-1">{{ epv_outputs.adjusted_ebit|money }}</dd>
 
-            <dt class="text-gray-600">× (1 − tax rate)</dt>
+            <dt class="text-gray-600 dark:text-gray-400 dark:text-gray-500">× (1 − tax rate)</dt>
             <dd class="text-right font-mono">{{ epv_inputs.tax_rate|percent }}</dd>
 
-            <dt class="text-gray-600 font-medium border-t border-gray-200 pt-2 mt-1">= NOPAT</dt>
-            <dd class="text-right font-mono font-medium border-t border-gray-200 pt-2 mt-1">{{ epv_outputs.nopat|money }}</dd>
+            <dt class="text-gray-600 dark:text-gray-400 dark:text-gray-500 font-medium border-t border-gray-200 dark:border-slate-800 pt-2 mt-1">= NOPAT</dt>
+            <dd class="text-right font-mono font-medium border-t border-gray-200 dark:border-slate-800 pt-2 mt-1">{{ epv_outputs.nopat|money }}</dd>
 
-            <dt class="text-gray-600">÷ WACC</dt>
+            <dt class="text-gray-600 dark:text-gray-400 dark:text-gray-500">÷ WACC</dt>
             <dd class="text-right font-mono">{{ epv_inputs.wacc|percent }}</dd>
 
-            <dt class="text-gray-600 font-medium border-t border-gray-200 pt-2 mt-1">= Enterprise EPV</dt>
-            <dd class="text-right font-mono font-medium border-t border-gray-200 pt-2 mt-1">{{ epv_outputs.enterprise_value|money }}</dd>
+            <dt class="text-gray-600 dark:text-gray-400 dark:text-gray-500 font-medium border-t border-gray-200 dark:border-slate-800 pt-2 mt-1">= Enterprise EPV</dt>
+            <dd class="text-right font-mono font-medium border-t border-gray-200 dark:border-slate-800 pt-2 mt-1">{{ epv_outputs.enterprise_value|money }}</dd>
 
-            <dt class="text-gray-600">− Net debt</dt>
+            <dt class="text-gray-600 dark:text-gray-400 dark:text-gray-500">− Net debt</dt>
             <dd class="text-right font-mono">{{ epv_inputs.net_debt|money }}</dd>
 
-            <dt class="text-gray-600 font-medium border-t border-gray-200 pt-2 mt-1">= Equity EPV</dt>
-            <dd class="text-right font-mono font-medium border-t border-gray-200 pt-2 mt-1">{{ epv_outputs.equity_value|money }}</dd>
+            <dt class="text-gray-600 dark:text-gray-400 dark:text-gray-500 font-medium border-t border-gray-200 dark:border-slate-800 pt-2 mt-1">= Equity EPV</dt>
+            <dd class="text-right font-mono font-medium border-t border-gray-200 dark:border-slate-800 pt-2 mt-1">{{ epv_outputs.equity_value|money }}</dd>
 
-            <dt class="text-gray-600">÷ Diluted shares</dt>
+            <dt class="text-gray-600 dark:text-gray-400 dark:text-gray-500">÷ Diluted shares</dt>
             <dd class="text-right font-mono">{{ epv_inputs.shares_outstanding|humanize }}</dd>
 
-            <dt class="text-gray-600 font-medium border-t border-gray-200 pt-2 mt-1">= EPV per share</dt>
-            <dd class="text-right font-mono font-medium border-t border-gray-200 pt-2 mt-1">{{ profile.currency }} {{ epv_outputs.epv_per_share|floatformat:2 }}</dd>
+            <dt class="text-gray-600 dark:text-gray-400 dark:text-gray-500 font-medium border-t border-gray-200 dark:border-slate-800 pt-2 mt-1">= EPV per share</dt>
+            <dd class="text-right font-mono font-medium border-t border-gray-200 dark:border-slate-800 pt-2 mt-1">{{ profile.currency }} {{ epv_outputs.epv_per_share|floatformat:2 }}</dd>
         </dl>
     </div>
 

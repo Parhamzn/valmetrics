@@ -1,15 +1,15 @@
 {% load format_filters %}
 
 <div class="space-y-4">
-    <div class="flex items-baseline justify-between flex-wrap gap-2 border-b border-gray-200 pb-2">
+    <div class="flex items-baseline justify-between flex-wrap gap-2 border-b border-gray-200 dark:border-slate-800 pb-2">
         <div>
-            <div class="text-xs uppercase tracking-wide text-gray-500">{{ model_category }}</div>
+            <div class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 dark:text-gray-500">{{ model_category }}</div>
             <h2 class="text-2xl font-semibold">{{ model_label }}</h2>
         </div>
         <a href="{% url 'valuation:models_index' ticker=ticker %}"
            hx-get="{% url 'valuation:models_index' ticker=ticker %}"
            hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
-           class="text-sm text-blue-600 hover:underline">← All models</a>
+           class="text-sm text-blue-600 dark:text-blue-400 hover:underline">← All models</a>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -19,12 +19,12 @@
             <h3 class="text-lg font-semibold mb-3">Assumptions</h3>
 
             {% if dividend_warning %}
-            <div class="mb-3 bg-yellow-50 border border-yellow-300 text-yellow-800 px-3 py-2 rounded text-sm">
+            <div class="mb-3 bg-yellow-50 dark:bg-yellow-950/40 border border-yellow-300 text-yellow-800 dark:text-yellow-300 px-3 py-2 rounded text-sm">
                 ⚠ {{ dividend_warning }}
             </div>
             {% endif %}
 
-            <p class="text-xs text-gray-600 mb-3 leading-relaxed">
+            <p class="text-xs text-gray-600 dark:text-gray-400 dark:text-gray-500 mb-3 leading-relaxed">
                 Two-Stage DDM models a high-growth phase followed by stable perpetual growth.
                 Use for firms whose current dividend trajectory is faster than long-run
                 sustainable growth.
@@ -35,48 +35,48 @@
                   hx-target="#ddm-results"
                   hx-swap="innerHTML"
                   hx-trigger="change delay:400ms, submit"
-                  class="space-y-3 bg-white border border-gray-200 rounded p-4">
+                  class="space-y-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded p-4">
                 <input type="hidden" name="partial" value="results">
 
                 <label class="block">
-                    <span class="text-sm text-gray-700">Current dividend (per share)</span>
+                    <span class="text-sm text-gray-700 dark:text-gray-300">Current dividend (per share)</span>
                     <div class="flex items-center gap-2">
                         <input type="number" name="current_dividend" step="0.01"
                                value="{{ ddm_inputs.current_dividend|stringformat:".4f" }}"
-                               class="w-full px-2 py-1 border border-gray-300 rounded font-mono text-sm">
-                        <span class="text-xs text-gray-500">D₀</span>
+                               class="w-full px-2 py-1 border border-gray-300 dark:border-slate-700 rounded font-mono text-sm">
+                        <span class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500">D₀</span>
                     </div>
                 </label>
 
                 <label class="block">
-                    <span class="text-sm text-gray-700">High-growth rate (g₁)</span>
+                    <span class="text-sm text-gray-700 dark:text-gray-300">High-growth rate (g₁)</span>
                     <input type="number" name="high_growth_rate" step="0.005"
                            value="{{ ddm_inputs.high_growth_rate|stringformat:".4f" }}"
-                           class="w-full px-2 py-1 border border-gray-300 rounded font-mono text-sm">
+                           class="w-full px-2 py-1 border border-gray-300 dark:border-slate-700 rounded font-mono text-sm">
                 </label>
 
                 <label class="block">
-                    <span class="text-sm text-gray-700">High-growth years (N)</span>
+                    <span class="text-sm text-gray-700 dark:text-gray-300">High-growth years (N)</span>
                     <input type="number" name="high_growth_years" step="1" min="1" max="30"
                            value="{{ ddm_inputs.high_growth_years }}"
-                           class="w-full px-2 py-1 border border-gray-300 rounded font-mono text-sm">
+                           class="w-full px-2 py-1 border border-gray-300 dark:border-slate-700 rounded font-mono text-sm">
                 </label>
 
                 <label class="block">
-                    <span class="text-sm text-gray-700">Terminal growth (g₂)</span>
+                    <span class="text-sm text-gray-700 dark:text-gray-300">Terminal growth (g₂)</span>
                     <input type="number" name="terminal_growth_rate" step="0.005"
                            value="{{ ddm_inputs.terminal_growth_rate|stringformat:".4f" }}"
-                           class="w-full px-2 py-1 border border-gray-300 rounded font-mono text-sm">
+                           class="w-full px-2 py-1 border border-gray-300 dark:border-slate-700 rounded font-mono text-sm">
                 </label>
 
                 <label class="block">
-                    <span class="text-sm text-gray-700">Required return (r)</span>
+                    <span class="text-sm text-gray-700 dark:text-gray-300">Required return (r)</span>
                     <input type="number" name="required_return" step="0.005"
                            value="{{ ddm_inputs.required_return|stringformat:".4f" }}"
-                           class="w-full px-2 py-1 border border-gray-300 rounded font-mono text-sm">
+                           class="w-full px-2 py-1 border border-gray-300 dark:border-slate-700 rounded font-mono text-sm">
                 </label>
 
-                <div class="pt-2 border-t border-gray-200 text-xs text-gray-500 space-y-0.5">
+                <div class="pt-2 border-t border-gray-200 dark:border-slate-800 text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500 space-y-0.5">
                     <div>Phase 1: <span class="font-mono">D_t = D₀(1+g₁)ᵗ</span></div>
                     <div>TV: <span class="font-mono">D_{N+1} / (r − g₂)</span></div>
                     <div>Constraint: <span class="font-mono">g₂ &lt; r</span></div>

@@ -5,30 +5,30 @@
 {% block content %}
 <div class="max-w-3xl mx-auto space-y-4">
     <h1 class="text-2xl font-semibold">Search results</h1>
-    <p class="text-gray-600">Query: <span class="font-mono">{{ query }}</span></p>
+    <p class="text-gray-600 dark:text-gray-400 dark:text-gray-500">Query: <span class="font-mono">{{ query }}</span></p>
 
     {% if results %}
-    <ul class="bg-white border border-gray-200 rounded divide-y divide-gray-100">
+    <ul class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded divide-y divide-gray-100">
         {% for r in results %}
         <li>
             <a href="{% url 'companies:overview' ticker=r.ticker %}"
-               class="flex items-baseline gap-3 px-4 py-3 hover:bg-blue-50">
-                <span class="font-mono font-medium text-gray-900 w-24 shrink-0">{{ r.ticker }}</span>
+               class="flex items-baseline gap-3 px-4 py-3 hover:bg-blue-50 dark:hover:bg-blue-950/40 dark:bg-blue-950/40">
+                <span class="font-mono font-medium text-gray-900 dark:text-gray-100 w-24 shrink-0">{{ r.ticker }}</span>
                 <span class="flex-1">
-                    <div class="text-gray-900">{{ r.name|default:"—" }}</div>
-                    <div class="text-xs text-gray-500">
+                    <div class="text-gray-900 dark:text-gray-100">{{ r.name|default:"—" }}</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500">
                         {{ r.exchange }}{% if r.sector %} · {{ r.sector }}{% endif %}
                     </div>
                 </span>
-                <span class="text-xs text-gray-400">{{ r.description }}</span>
+                <span class="text-xs text-gray-400 dark:text-gray-500">{{ r.description }}</span>
             </a>
         </li>
         {% endfor %}
     </ul>
     {% else %}
-    <div class="text-center py-12 text-gray-500">
+    <div class="text-center py-12 text-gray-500 dark:text-gray-400 dark:text-gray-500">
         <p class="mb-3">No matches found for "{{ query }}".</p>
-        <a href="/" class="text-blue-600 hover:underline">← back home</a>
+        <a href="/" class="text-blue-600 dark:text-blue-400 hover:underline">← back home</a>
     </div>
     {% endif %}
 </div>
