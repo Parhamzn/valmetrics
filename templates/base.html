@@ -34,6 +34,7 @@
     </style>
     <script src="https://unpkg.com/htmx.org@1.9.12"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <meta name="csrf-token" content="{{ csrf_token }}">
 </head>
 <body class="bg-slate-50 text-gray-900 antialiased">
@@ -92,6 +93,81 @@
                 evt.detail.headers['X-CSRFToken'] = token.content;
             }
         });
+
+        // Format a big number as $1.23T / $456.78B / $9.87M / $1.23K
+        window.fmtBigMoney = function(n) {
+            if (n === null || n === undefined || isNaN(n)) return '—';
+            var sign = n < 0 ? '-' : '';
+            var a = Math.abs(n);
+            if (a >= 1e12) return sign + '$' + (a/1e12).toFixed(2) + 'T';
+            if (a >= 1e9)  return sign + '$' + (a/1e9 ).toFixed(2) + 'B';
+            if (a >= 1e6)  return sign + '$' + (a/1e6 ).toFixed(2) + 'M';
+            if (a >= 1e3)  return sign + '$' + (a/1e3 ).toFixed(2) + 'K';
+            return sign + '$' + a.toFixed(2);
+        };
+
+        // Initialize a bar chart for a statement line item.
+        // data = { labels: [...], values: [...], label: 'Total revenue' }
+        window.initStatementChart = function(canvas, data) {
+            if (!canvas || !window.Chart) return;
+            if (!data || !data.labels || data.labels.length === 0) {
+                var ctx0 = canvas.getContext('2d');
+                ctx0.fillStyle = '#9ca3af';
+                ctx0.font = '12px Inter, sans-serif';
+                ctx0.textAlign = 'center';
+                ctx0.fillText('No data points available', canvas.width / 2, 30);
+                return;
+            }
+            // Destroy any existing chart on this canvas (re-renders are safe)
+            var existing = Chart.getChart(canvas);
+            if (existing) existing.destroy();
+            new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: data.label || '',
+                        data: data.values,
+                        backgroundColor: data.values.map(function(v) {
+                            return v < 0 ? 'rgba(220, 38, 38, 0.8)' : 'rgba(37, 99, 235, 0.85)';
+                        }),
+                        borderRadius: 6,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                            padding: 10,
+                            cornerRadius: 8,
+                            titleFont: { family: 'Inter', size: 12 },
+                            bodyFont: { family: 'JetBrains Mono', size: 12 },
+                            callbacks: {
+                                label: function(ctx) { return window.fmtBigMoney(ctx.parsed.y); }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Inter', size: 11 }, color: '#6b7280' }
+                        },
+                        y: {
+                            grid: { color: 'rgba(0,0,0,0.05)' },
+                            ticks: {
+                                font: { family: 'JetBrains Mono', size: 11 },
+                                color: '#6b7280',
+                                callback: function(v) { return window.fmtBigMoney(v); }
+                            }
+                        }
+                    }
+                }
+            });
+        };
     </script>
 </body>
 </html>
