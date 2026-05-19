@@ -28,8 +28,18 @@
             var dark = t === 'dark' ||
               (t === 'system' && window.matchMedia &&
                window.matchMedia('(prefers-color-scheme: dark)').matches);
-            document.documentElement.classList.toggle('dark', dark);
-            document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+            var html = document.documentElement;
+            // Suppress all CSS transitions for the duration of the toggle so
+            // colors flip in one paint instead of slowly fading.
+            html.classList.add('theme-changing');
+            html.classList.toggle('dark', dark);
+            html.dataset.theme = dark ? 'dark' : 'light';
+            // Force a reflow so the class change is applied before we lift
+            // the no-transition guard.
+            void html.offsetHeight;
+            requestAnimationFrame(function() {
+              html.classList.remove('theme-changing');
+            });
           },
           getTimezone: function() {
             if (!this.timezone || this.timezone === 'local') {
@@ -75,6 +85,13 @@
     <style>
       body { font-feature-settings: "cv02", "cv03", "cv04", "cv11"; }
       [x-cloak] { display: none !important; }
+      /* Snap-to-theme: while .theme-changing is set on <html>, ALL element
+         transitions are suppressed so the dark mode swap is instant.
+         Removed on the next animation frame so hover/focus transitions
+         keep working normally afterwards. */
+      .theme-changing, .theme-changing *, .theme-changing *::before, .theme-changing *::after {
+        transition: none !important;
+      }
       /* Default styling for form controls in dark mode.
          Avoids having to add dark: variants to every <input>/<select>/<textarea>
          in every model assumption form. Specific classes can still override. */
@@ -98,7 +115,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <meta name="csrf-token" content="{{ csrf_token }}">
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 text-gray-900 dark:text-gray-100 antialiased transition-colors">
+<body class="bg-slate-50 dark:bg-slate-950 text-gray-900 dark:text-gray-100 antialiased">
     <nav class="bg-white/80 dark:bg-slate-900/80 backdrop-blur border-b border-gray-200/70 dark:border-slate-800/70 sticky top-0 z-40">
         <div class="container mx-auto px-4 py-3 flex items-center justify-between gap-4">
             <div class="flex items-center gap-6">
