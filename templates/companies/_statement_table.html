@@ -32,17 +32,17 @@
     {% elif statement is None or not statement.lines %}
         <div class="text-sm text-gray-500 dark:text-gray-400">No data available.</div>
     {% else %}
-        {% with col_count=statement.lines|length|add:1 %}
-        {% widthratio 72 statement.lines|length 1 as data_col_pct %}
+        {% with col_count=statement.lines|length|add:1 n_periods=statement.lines|length %}
         <div class="border border-gray-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 shadow-card overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full table-fixed text-sm">
                     <thead class="bg-blue-600 text-white">
                         <tr>
-                            <th class="text-left px-3 py-2.5 font-medium sticky left-0 bg-blue-600" style="width: 28%; min-width: 220px;">Line item</th>
+                            <th class="text-left px-3 py-2.5 font-medium sticky left-0 bg-blue-600"
+                                style="width: 240px;">Line item</th>
                             {% for line in statement.lines %}
                                 <th class="text-right px-3 py-2.5 font-medium whitespace-nowrap font-mono"
-                                    style="width: {{ data_col_pct }}%; min-width: 96px;">
+                                    style="width: calc((100% - 240px) / {{ n_periods }});">
                                     {{ line.period_end|date:"Y-m-d" }}
                                 </th>
                             {% endfor %}
