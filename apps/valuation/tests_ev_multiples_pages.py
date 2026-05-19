@@ -25,7 +25,7 @@ _REPO_ROOT = os.path.abspath(os.path.join(_THIS_DIR, os.pardir, os.pardir))
 if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "dcf_clone.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "valmetrics.settings")
 
 import django  # noqa: E402
 

@@ -23,7 +23,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 # Try to bring Django up so the cache decorator finds DCF_CACHE_DIR.
 # If Django isn't configured yet, cache.py falls back to ~/.dcf_cache/.
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "dcf_clone.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "valmetrics.settings")
 try:
     import django  # type: ignore
 
