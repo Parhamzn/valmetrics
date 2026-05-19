@@ -35,14 +35,18 @@
         {% with col_count=statement.lines|length|add:1 n_periods=statement.lines|length %}
         <div class="border border-gray-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 shadow-card overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full table-fixed text-sm">
+                <table class="table-fixed text-sm" style="width: 100%;">
+                    <colgroup>
+                        <col style="width: 240px;">
+                        {% for line in statement.lines %}
+                            <col style="width: calc((100% - 240px) / {{ n_periods }});">
+                        {% endfor %}
+                    </colgroup>
                     <thead class="bg-blue-600 text-white">
                         <tr>
-                            <th class="text-left px-3 py-2.5 font-medium sticky left-0 bg-blue-600"
-                                style="width: 240px;">Line item</th>
+                            <th class="text-left px-3 py-2.5 font-medium sticky left-0 bg-blue-600">Line item</th>
                             {% for line in statement.lines %}
-                                <th class="text-right px-3 py-2.5 font-medium whitespace-nowrap font-mono"
-                                    style="width: calc((100% - 240px) / {{ n_periods }});">
+                                <th class="text-right px-3 py-2.5 font-medium whitespace-nowrap font-mono">
                                     {{ line.period_end|date:"Y-m-d" }}
                                 </th>
                             {% endfor %}
