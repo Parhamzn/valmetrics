@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% load static %}<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -139,7 +139,10 @@
             <div class="flex items-center gap-6">
                 <a href="/" class="text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-50">
                     <span class="inline-flex items-center gap-2">
-                        <span class="inline-block w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600"></span>
+                        <img src="{% static 'img/logo.png' %}"
+                             alt="Valmetrics"
+                             class="w-7 h-7 rounded-full object-cover"
+                             width="28" height="28" />
                         Valmetrics
                     </span>
                 </a>
