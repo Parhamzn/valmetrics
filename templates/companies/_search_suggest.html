@@ -1,18 +1,18 @@
 {% if results %}
-<ul class="bg-white border border-gray-200 rounded-2xl shadow-lift overflow-hidden divide-y divide-gray-100">
+<ul class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-lift overflow-hidden divide-y divide-gray-100 dark:divide-slate-800">
     {% for r in results %}
     <li>
         <a href="{% url 'companies:overview' ticker=r.ticker %}"
-           class="flex items-baseline gap-3 px-4 py-2.5 hover:bg-blue-50 transition">
-            <span class="font-mono text-sm font-medium text-gray-900 w-20 shrink-0">{{ r.ticker }}</span>
-            <span class="text-sm text-gray-700 truncate flex-1">{{ r.name|default:"—" }}</span>
-            <span class="text-[10px] uppercase tracking-wide text-gray-400 shrink-0">{{ r.exchange }}</span>
+           class="flex items-baseline gap-3 px-4 py-2.5 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition">
+            <span class="font-mono text-sm font-medium text-gray-900 dark:text-gray-100 w-20 shrink-0">{{ r.ticker }}</span>
+            <span class="text-sm text-gray-700 dark:text-gray-300 truncate flex-1">{{ r.name|default:"—" }}</span>
+            <span class="text-[10px] uppercase tracking-wide text-gray-400 dark:text-gray-500 shrink-0">{{ r.exchange }}</span>
         </a>
     </li>
     {% endfor %}
 </ul>
 {% elif query %}
-<div class="bg-white border border-gray-200 rounded-2xl shadow-lift px-4 py-3 text-sm text-gray-500">
+<div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-lift px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
     No matches for "{{ query }}".
 </div>
 {% endif %}

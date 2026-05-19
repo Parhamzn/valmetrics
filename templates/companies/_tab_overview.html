@@ -2,7 +2,7 @@
 <div class="space-y-6">
 
     {# Price history chart — X.com style #}
-    <section class="bg-white border border-gray-200 rounded-2xl shadow-card overflow-hidden">
+    <section class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl shadow-card overflow-hidden">
         <div class="px-5 pt-5 pb-2">
             {% if quote %}
             <div class="flex items-baseline gap-3">
@@ -13,11 +13,11 @@
             {% endif %}
             {% if period_change_pct is not None %}
             <div class="mt-1 text-sm font-mono
-                        {% if period_change_up %}text-green-600{% else %}text-red-600{% endif %}">
+                        {% if period_change_up %}text-green-600 dark:text-green-400{% else %}text-red-600 dark:text-red-400{% endif %}">
                 {% if period_change_up %}▲{% else %}▼{% endif %}
                 {{ quote.currency }} {{ period_change_abs|floatformat:2 }}
                 ({{ period_change_pct|floatformat:2 }}%)
-                <span class="text-gray-400 ml-1">
+                <span class="text-gray-400 dark:text-gray-500 ml-1">
                     · {% if price_period == "1d" %}past day
                        {% elif price_period == "1w" %}past week
                        {% elif price_period == "1mo" %}past month
@@ -30,28 +30,27 @@
         <div class="relative" style="height: 280px;">
             <canvas x-init="initPriceChart($el, {{ price_chart_json }})"></canvas>
         </div>
-        <div class="border-t border-gray-100 px-3 py-2 flex justify-around items-center text-xs">
-            {% for slug, label in "1d:1D,1w:1W,1mo:1M,1y:1Y,max:ALL"|cut:" "|slice:":100"|stringformat:"s"|slice:":0" %}{% endfor %}
+        <div class="border-t border-gray-100 dark:border-slate-800 px-3 py-2 flex justify-around items-center text-xs">
             <a href="?price_period=1d"
                hx-get="?price_period=1d" hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
                class="px-4 py-1.5 rounded-full transition
-                      {% if price_period == '1d' %}bg-gray-900 text-white font-medium{% else %}text-gray-600 hover:bg-gray-100{% endif %}">1D</a>
+                      {% if price_period == '1d' %}bg-gray-900 dark:bg-gray-50 text-white dark:text-gray-900 font-medium{% else %}text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800{% endif %}">1D</a>
             <a href="?price_period=1w"
                hx-get="?price_period=1w" hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
                class="px-4 py-1.5 rounded-full transition
-                      {% if price_period == '1w' %}bg-gray-900 text-white font-medium{% else %}text-gray-600 hover:bg-gray-100{% endif %}">1W</a>
+                      {% if price_period == '1w' %}bg-gray-900 dark:bg-gray-50 text-white dark:text-gray-900 font-medium{% else %}text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800{% endif %}">1W</a>
             <a href="?price_period=1mo"
                hx-get="?price_period=1mo" hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
                class="px-4 py-1.5 rounded-full transition
-                      {% if price_period == '1mo' %}bg-gray-900 text-white font-medium{% else %}text-gray-600 hover:bg-gray-100{% endif %}">1M</a>
+                      {% if price_period == '1mo' %}bg-gray-900 dark:bg-gray-50 text-white dark:text-gray-900 font-medium{% else %}text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800{% endif %}">1M</a>
             <a href="?price_period=1y"
                hx-get="?price_period=1y" hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
                class="px-4 py-1.5 rounded-full transition
-                      {% if price_period == '1y' %}bg-gray-900 text-white font-medium{% else %}text-gray-600 hover:bg-gray-100{% endif %}">1Y</a>
+                      {% if price_period == '1y' %}bg-gray-900 dark:bg-gray-50 text-white dark:text-gray-900 font-medium{% else %}text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800{% endif %}">1Y</a>
             <a href="?price_period=max"
                hx-get="?price_period=max" hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
                class="px-4 py-1.5 rounded-full transition
-                      {% if price_period == 'max' %}bg-gray-900 text-white font-medium{% else %}text-gray-600 hover:bg-gray-100{% endif %}">ALL</a>
+                      {% if price_period == 'max' %}bg-gray-900 dark:bg-gray-50 text-white dark:text-gray-900 font-medium{% else %}text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800{% endif %}">ALL</a>
         </div>
     </section>
 
@@ -60,13 +59,13 @@
         <div class="lg:col-span-2 space-y-4">
             <section>
                 <h2 class="text-lg font-semibold mb-2">Business summary</h2>
-                <p class="text-gray-700 leading-relaxed text-justify hyphens-auto">{{ profile.description|default:"—" }}</p>
+                <p class="text-gray-700 dark:text-gray-300 leading-relaxed text-justify hyphens-auto">{{ profile.description|default:"—" }}</p>
             </section>
 
             {% if profile.website %}
             <section>
                 <a href="{{ profile.website }}" target="_blank" rel="noopener"
-                   class="text-blue-600 hover:underline text-sm">
+                   class="text-blue-600 dark:text-blue-400 hover:underline text-sm">
                     {{ profile.website }} ↗
                 </a>
             </section>
@@ -76,22 +75,22 @@
         <aside class="space-y-3">
             <h2 class="text-lg font-semibold">Key facts</h2>
             <dl class="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
-                <dt class="text-gray-500">Sector</dt>
+                <dt class="text-gray-500 dark:text-gray-400">Sector</dt>
                 <dd>{{ profile.sector|or_dash }}</dd>
 
-                <dt class="text-gray-500">Industry</dt>
+                <dt class="text-gray-500 dark:text-gray-400">Industry</dt>
                 <dd>{{ profile.industry|or_dash }}</dd>
 
-                <dt class="text-gray-500">Country</dt>
+                <dt class="text-gray-500 dark:text-gray-400">Country</dt>
                 <dd>{{ profile.country|or_dash }}</dd>
 
-                <dt class="text-gray-500">Employees</dt>
+                <dt class="text-gray-500 dark:text-gray-400">Employees</dt>
                 <dd>{{ profile.employees|humanize }}</dd>
 
-                <dt class="text-gray-500">Market cap</dt>
+                <dt class="text-gray-500 dark:text-gray-400">Market cap</dt>
                 <dd>{{ profile.currency }} {{ profile.market_cap|humanize }}</dd>
 
-                <dt class="text-gray-500">Exchange</dt>
+                <dt class="text-gray-500 dark:text-gray-400">Exchange</dt>
                 <dd>{{ profile.exchange|or_dash }}</dd>
             </dl>
         </aside>

@@ -210,6 +210,20 @@
             catch (e) { return iso; }
         };
 
+        // Theme-aware colors for Chart.js (re-read at chart init time;
+        // requires a page refresh to switch themes mid-session).
+        window.chartThemeColors = function() {
+            var dark = document.documentElement.classList.contains('dark');
+            return {
+                tickColor: dark ? '#94a3b8' : '#9ca3af',
+                gridColor: dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+                tooltipBg: dark ? 'rgba(15, 23, 42, 0.98)' : 'rgba(17, 24, 39, 0.95)',
+                tooltipTitleColor: dark ? '#f1f5f9' : '#ffffff',
+                tooltipBodyColor: dark ? '#e2e8f0' : '#ffffff',
+                cardBg: dark ? '#0f172a' : '#ffffff',
+            };
+        };
+
         // Clip plugin: hides the outer half of the first and last volume
         // bars so the chart's left & right edges look balanced. Achieved
         // by clipping the bar dataset's draw area to [first.x, last.x] —
@@ -259,6 +273,7 @@
             }
             var volMax = (maxVol > 0 ? maxVol : 1) * 5;
             var hasVolume = data.volumes && data.volumes.some(function(v){return v>0;});
+            var theme = window.chartThemeColors();
 
             new Chart(canvas, {
                 plugins: [halfEdgesPlugin],
@@ -303,7 +318,9 @@
                     plugins: {
                         legend: { display: false },
                         tooltip: {
-                            backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                            backgroundColor: theme.tooltipBg,
+                            titleColor: theme.tooltipTitleColor,
+                            bodyColor: theme.tooltipBodyColor,
                             padding: 10,
                             cornerRadius: 8,
                             displayColors: false,
@@ -333,7 +350,7 @@
                                 maxTicksLimit: 6,
                                 maxRotation: 0,
                                 font: { family: 'Inter', size: 11 },
-                                color: '#9ca3af',
+                                color: theme.tickColor,
                                 callback: function(_value, idx) {
                                     return window.fmtPriceTime(data.labels[idx], period);
                                 }
@@ -374,6 +391,7 @@
             // Destroy any existing chart on this canvas (re-renders are safe)
             var existing = Chart.getChart(canvas);
             if (existing) existing.destroy();
+            var theme = window.chartThemeColors();
             new Chart(canvas, {
                 type: 'bar',
                 data: {
@@ -394,7 +412,9 @@
                     plugins: {
                         legend: { display: false },
                         tooltip: {
-                            backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                            backgroundColor: theme.tooltipBg,
+                            titleColor: theme.tooltipTitleColor,
+                            bodyColor: theme.tooltipBodyColor,
                             padding: 10,
                             cornerRadius: 8,
                             titleFont: { family: 'Inter', size: 12 },
@@ -407,13 +427,13 @@
                     scales: {
                         x: {
                             grid: { display: false },
-                            ticks: { font: { family: 'Inter', size: 11 }, color: '#6b7280' }
+                            ticks: { font: { family: 'Inter', size: 11 }, color: theme.tickColor }
                         },
                         y: {
-                            grid: { color: 'rgba(0,0,0,0.05)' },
+                            grid: { color: theme.gridColor },
                             ticks: {
                                 font: { family: 'JetBrains Mono', size: 11 },
-                                color: '#6b7280',
+                                color: theme.tickColor,
                                 callback: function(v) { return window.fmtBigMoney(v); }
                             }
                         }

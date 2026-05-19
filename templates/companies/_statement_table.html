@@ -2,15 +2,15 @@
 
 <div class="space-y-4">
 
-    <div class="inline-flex items-center gap-1 p-1 bg-gray-100 rounded-full text-sm">
+    <div class="inline-flex items-center gap-1 p-1 bg-gray-100 dark:bg-slate-800 rounded-full text-sm">
         <a href="?period=annual"
            hx-get="?period=annual"
            hx-target="#tab-panel"
            hx-swap="innerHTML"
            hx-push-url="true"
            class="inline-block px-4 py-1.5 rounded-full transition
-                  {% if period == 'annual' %}bg-white text-gray-900 font-medium shadow-sm
-                  {% else %}text-gray-600 hover:text-gray-900{% endif %}">
+                  {% if period == 'annual' %}bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-50 font-medium shadow-sm
+                  {% else %}text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100{% endif %}">
             Annual
         </a>
         <a href="?period=quarterly"
@@ -19,21 +19,21 @@
            hx-swap="innerHTML"
            hx-push-url="true"
            class="inline-block px-4 py-1.5 rounded-full transition
-                  {% if period == 'quarterly' %}bg-white text-gray-900 font-medium shadow-sm
-                  {% else %}text-gray-600 hover:text-gray-900{% endif %}">
+                  {% if period == 'quarterly' %}bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-50 font-medium shadow-sm
+                  {% else %}text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100{% endif %}">
             Quarterly
         </a>
     </div>
 
     {% if statement_error %}
-        <div class="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl p-3">
+        <div class="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-xl p-3">
             {{ statement_error }}
         </div>
     {% elif statement is None or not statement.lines %}
-        <div class="text-sm text-gray-500">No data available.</div>
+        <div class="text-sm text-gray-500 dark:text-gray-400">No data available.</div>
     {% else %}
         {% with col_count=statement.lines|length|add:1 %}
-        <div class="border border-gray-200 rounded-2xl bg-white shadow-card overflow-hidden">
+        <div class="border border-gray-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 shadow-card overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead class="bg-blue-600 text-white">
@@ -49,30 +49,30 @@
                     <tbody x-data="{ expanded: null }">
                         {% for label, key in layout %}
                             <tr @click="expanded = expanded === '{{ key }}' ? null : '{{ key }}'"
-                                :class="expanded === '{{ key }}' ? 'bg-blue-50/60' : 'hover:bg-gray-50'"
-                                class="border-b border-gray-100 cursor-pointer transition-colors">
+                                :class="expanded === '{{ key }}' ? 'bg-blue-50/60 dark:bg-blue-950/40' : 'hover:bg-gray-50 dark:hover:bg-slate-800/60'"
+                                class="border-b border-gray-100 dark:border-slate-800 cursor-pointer transition-colors">
                                 <td class="px-3 py-2 sticky left-0 whitespace-nowrap"
-                                    :class="expanded === '{{ key }}' ? 'bg-blue-50/60 text-blue-700 font-medium' : 'bg-white text-gray-700'">
+                                    :class="expanded === '{{ key }}' ? 'bg-blue-50/60 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 font-medium' : 'bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-300'">
                                     <span class="inline-flex items-center gap-2">
                                         <span class="text-xs"
-                                              :class="expanded === '{{ key }}' ? 'rotate-90 text-blue-500' : 'text-gray-400'"
+                                              :class="expanded === '{{ key }}' ? 'rotate-90 text-blue-500 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'"
                                               style="transition: transform .15s">▶</span>
                                         {{ label }}
                                     </span>
                                 </td>
                                 {% for line in statement.lines %}
-                                    <td class="px-3 py-2 text-right font-mono text-gray-900 whitespace-nowrap" style="width: 1%;">
+                                    <td class="px-3 py-2 text-right font-mono text-gray-900 dark:text-gray-100 whitespace-nowrap" style="width: 1%;">
                                         {{ line.items|get_item:key|money }}
                                     </td>
                                 {% endfor %}
                             </tr>
                             <template x-if="expanded === '{{ key }}'">
-                                <tr class="bg-blue-50/30">
+                                <tr class="bg-blue-50/30 dark:bg-blue-950/30">
                                     <td colspan="{{ col_count }}" class="px-4 py-4">
                                         <div class="flex items-baseline justify-between mb-2">
-                                            <h4 class="text-sm font-semibold text-gray-800">{{ label }} — {{ period|capfirst }} progression</h4>
+                                            <h4 class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ label }} — {{ period|capfirst }} progression</h4>
                                             <button @click.stop="expanded = null"
-                                                    class="text-xs text-gray-500 hover:text-gray-800">Close ✕</button>
+                                                    class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-100">Close ✕</button>
                                         </div>
                                         <div class="relative" style="height: 220px;">
                                             <canvas x-init="initStatementChart($el, {% chart_data_for statement key label %})"></canvas>
