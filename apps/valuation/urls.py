@@ -1,0 +1,100 @@
+from django.urls import path
+
+from . import views
+
+app_name = "valuation"
+
+urlpatterns = [
+    path(
+        "company/<str:ticker>/models/",
+        views.models_index,
+        name="models_index",
+    ),
+    path(
+        "company/<str:ticker>/models/intrinsic-valuation/dcf-perpetual-growth/",
+        views.dcf_pg_view,
+        name="dcf_perpetual_growth",
+    ),
+    path(
+        "company/<str:ticker>/models/intrinsic-valuation/simple-dividend-discount-model/",
+        views.simple_ddm_view,
+        name="simple_ddm",
+    ),
+    path(
+        "company/<str:ticker>/models/intrinsic-valuation/two-stage-dividend-discount-model/",
+        views.two_stage_ddm_view,
+        name="two_stage_ddm",
+    ),
+    path(
+        "company/<str:ticker>/models/intrinsic-valuation/earnings-power-value/",
+        views.epv_view,
+        name="epv",
+    ),
+    path(
+        "company/<str:ticker>/models/intrinsic-valuation/simple-excess-return/",
+        views.simple_excess_return_view,
+        name="simple_excess_return",
+    ),
+    # ----- Multiples valuation -----
+    path(
+        "company/<str:ticker>/models/multiples-valuation/dcf-exit-multiple/",
+        views.dcf_exit_multiple_view,
+        name="dcf_exit_multiple",
+    ),
+    path(
+        "company/<str:ticker>/models/multiples-valuation/discounted-future-market-cap/",
+        views.dfmc_view,
+        name="discounted_future_mcap",
+    ),
+    path(
+        "company/<str:ticker>/models/multiples-valuation/peter-lynch-fair-value/",
+        views.peter_lynch_view,
+        name="peter_lynch",
+    ),
+    path(
+        "company/<str:ticker>/models/multiples-valuation/reverse-dcf/",
+        views.reverse_dcf_view,
+        name="reverse_dcf",
+    ),
+    path(
+        "company/<str:ticker>/models/multiples-valuation/ev-ebitda/",
+        views.ev_ebitda_view,
+        name="ev_ebitda",
+    ),
+    path(
+        "company/<str:ticker>/models/multiples-valuation/ev-sales/",
+        views.ev_sales_view,
+        name="ev_sales",
+    ),
+    # ----- Risk analysis -----
+    path(
+        "company/<str:ticker>/models/risk-analysis/weighted-average-cost-of-capital-wacc/",
+        views.wacc_view,
+        name="wacc",
+    ),
+    path(
+        "company/<str:ticker>/models/risk-analysis/capital-asset-pricing-model-capm/",
+        views.capm_view,
+        name="capm",
+    ),
+    path(
+        "company/<str:ticker>/models/risk-analysis/piotroski-f-score/",
+        views.piotroski_view,
+        name="piotroski",
+    ),
+    path(
+        "company/<str:ticker>/models/risk-analysis/altman-z-score/",
+        views.altman_view,
+        name="altman",
+    ),
+    path(
+        "company/<str:ticker>/models/risk-analysis/margin-analysis/",
+        views.margin_analysis_view,
+        name="margin_analysis",
+    ),
+    path(
+        "company/<str:ticker>/models/risk-analysis/return-on-invested-capital-roic/",
+        views.roic_view,
+        name="roic",
+    ),
+]

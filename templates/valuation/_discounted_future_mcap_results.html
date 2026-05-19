@@ -1,0 +1,90 @@
+{% load format_filters %}
+
+{% if dfmc_error %}
+    <div class="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">
+        Couldn't compute Discounted Future Market Cap: {{ dfmc_error }}
+    </div>
+{% elif not dfmc_outputs %}
+    <div class="text-gray-500">No result computed.</div>
+{% else %}
+
+    {% if is_loss_making %}
+        <div class="bg-yellow-50 border border-yellow-200 text-yellow-900 px-3 py-2 rounded text-sm mb-4">
+            <strong>Trailing net income is non-positive.</strong> A P/E-based
+            multiple isn't meaningful for loss-making companies; the result
+            below is shown for completeness but should not be used to value
+            the firm. Try Earnings Power Value or a revenue-based approach
+            instead.
+        </div>
+    {% endif %}
+
+    <!-- Headline -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+        <div class="bg-white border border-gray-200 rounded p-3">
+            <div class="text-xs uppercase text-gray-500">Fair value / share</div>
+            <div class="text-2xl font-mono">{{ profile.currency }} {{ dfmc_outputs.fair_value_per_share|floatformat:2 }}</div>
+        </div>
+        <div class="bg-white border border-gray-200 rounded p-3">
+            <div class="text-xs uppercase text-gray-500">Current price</div>
+            <div class="text-2xl font-mono">
+                {% if quote %}{{ quote.currency }} {{ quote.price|floatformat:2 }}{% else %}—{% endif %}
+            </div>
+        </div>
+        <div class="bg-white border border-gray-200 rounded p-3">
+            <div class="text-xs uppercase text-gray-500">Upside</div>
+            <div class="text-2xl font-mono {{ upside_pct|signed_color }}">
+                {% if upside_pct is not None %}
+                    {{ upside_pct|percent }}
+                {% else %}—{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Projected NI table -->
+    <div class="overflow-x-auto border border-gray-200 rounded mb-4">
+        <table class="min-w-full text-sm">
+            <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                    <th class="text-left px-3 py-2 font-medium text-gray-700">Year</th>
+                    <th class="text-right px-3 py-2 font-medium text-gray-700">Projected net income</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in dfmc_outputs.projected_net_incomes %}
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="px-3 py-1.5">Year {{ row.0 }}</td>
+                    <td class="px-3 py-1.5 text-right font-mono">{{ row.1|money }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Value breakdown -->
+    <div class="bg-white border border-gray-200 rounded p-4">
+        <h4 class="text-sm font-semibold text-gray-700 mb-3">Valuation summary</h4>
+        <dl class="grid grid-cols-2 gap-y-1.5 text-sm">
+            <dt class="text-gray-600">Terminal net income (Year N)</dt>
+            <dd class="text-right font-mono">{{ dfmc_outputs.terminal_net_income|money }}</dd>
+
+            <dt class="text-gray-600">× Terminal P/E</dt>
+            <dd class="text-right font-mono">{{ dfmc_inputs.terminal_pe|floatformat:2 }}×</dd>
+
+            <dt class="text-gray-600 font-medium border-t border-gray-200 pt-2 mt-1">= Future market cap</dt>
+            <dd class="text-right font-mono font-medium border-t border-gray-200 pt-2 mt-1">{{ dfmc_outputs.future_market_cap|money }}</dd>
+
+            <dt class="text-gray-600">÷ (1 + discount rate)^N</dt>
+            <dd class="text-right font-mono">{{ dfmc_inputs.discount_rate|percent }} × {{ dfmc_inputs.projection_years }}y</dd>
+
+            <dt class="text-gray-600 font-medium border-t border-gray-200 pt-2 mt-1">= PV of future market cap</dt>
+            <dd class="text-right font-mono font-medium border-t border-gray-200 pt-2 mt-1">{{ dfmc_outputs.pv_future_market_cap|money }}</dd>
+
+            <dt class="text-gray-600">÷ Diluted shares</dt>
+            <dd class="text-right font-mono">{{ dfmc_inputs.shares_outstanding|humanize }}</dd>
+
+            <dt class="text-gray-600 font-medium border-t border-gray-200 pt-2 mt-1">= Fair value per share</dt>
+            <dd class="text-right font-mono font-medium border-t border-gray-200 pt-2 mt-1">{{ profile.currency }} {{ dfmc_outputs.fair_value_per_share|floatformat:2 }}</dd>
+        </dl>
+    </div>
+
+{% endif %}

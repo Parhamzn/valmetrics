@@ -1,0 +1,15 @@
+.venv/
+.dcf_cache/
+db.sqlite3
+db.sqlite3-journal
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+staticfiles/
+.idea/
+.vscode/
+*.log
+*.swp
+.env
+.env.*

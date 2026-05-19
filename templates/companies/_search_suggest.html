@@ -1,0 +1,18 @@
+{% if results %}
+<ul class="bg-white border border-gray-200 rounded-2xl shadow-lift overflow-hidden divide-y divide-gray-100">
+    {% for r in results %}
+    <li>
+        <a href="{% url 'companies:overview' ticker=r.ticker %}"
+           class="flex items-baseline gap-3 px-4 py-2.5 hover:bg-blue-50 transition">
+            <span class="font-mono text-sm font-medium text-gray-900 w-20 shrink-0">{{ r.ticker }}</span>
+            <span class="text-sm text-gray-700 truncate flex-1">{{ r.name|default:"—" }}</span>
+            <span class="text-[10px] uppercase tracking-wide text-gray-400 shrink-0">{{ r.exchange }}</span>
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+{% elif query %}
+<div class="bg-white border border-gray-200 rounded-2xl shadow-lift px-4 py-3 text-sm text-gray-500">
+    No matches for "{{ query }}".
+</div>
+{% endif %}

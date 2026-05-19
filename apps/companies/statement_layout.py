@@ -1,0 +1,57 @@
+from __future__ import annotations
+
+INCOME_LAYOUT: list[tuple[str, str]] = [
+    ("Total revenue",                "total_revenue"),
+    ("Cost of revenue",              "cost_of_revenue"),
+    ("Gross profit",                 "gross_profit"),
+    ("Research & development",       "research_and_development"),
+    ("Selling, general & admin",     "selling_general_and_administration"),
+    ("Operating expenses",           "operating_expense"),
+    ("Operating income",             "operating_income"),
+    ("EBITDA",                       "ebitda"),
+    ("EBIT",                         "ebit"),
+    ("Interest expense",             "interest_expense"),
+    ("Pretax income",                "pretax_income"),
+    ("Tax provision",                "tax_provision"),
+    ("Net income",                   "net_income"),
+    ("Basic EPS",                    "basic_eps"),
+    ("Diluted EPS",                  "diluted_eps"),
+    ("Basic shares outstanding",     "basic_average_shares"),
+    ("Diluted shares outstanding",   "diluted_average_shares"),
+]
+
+BALANCE_LAYOUT: list[tuple[str, str]] = [
+    ("Cash and equivalents",          "cash_and_cash_equivalents"),
+    ("Short-term investments",        "other_short_term_investments"),
+    ("Accounts receivable",           "accounts_receivable"),
+    ("Inventory",                     "inventory"),
+    ("Current assets",                "current_assets"),
+    ("Property, plant & equipment",   "net_ppe"),
+    ("Goodwill",                      "goodwill"),
+    ("Intangible assets",             "other_intangible_assets"),
+    ("Non-current assets",            "total_non_current_assets"),
+    ("Total assets",                  "total_assets"),
+    ("Accounts payable",              "accounts_payable"),
+    ("Short-term debt",               "current_debt"),
+    ("Current liabilities",           "current_liabilities"),
+    ("Long-term debt",                "long_term_debt"),
+    ("Total liabilities",             "total_liabilities_net_minority_interest"),
+    ("Common stock equity",           "common_stock_equity"),
+    ("Retained earnings",             "retained_earnings"),
+    ("Total equity",                  "total_equity_gross_minority_interest"),
+    ("Total capitalization",          "total_capitalization"),
+]
+
+CASHFLOW_LAYOUT: list[tuple[str, str]] = [
+    ("Operating cash flow",       "operating_cash_flow"),
+    ("Capital expenditure",       "capital_expenditure"),
+    ("Free cash flow",            "free_cash_flow"),
+    ("Investing cash flow",       "investing_cash_flow"),
+    ("Financing cash flow",       "financing_cash_flow"),
+    ("Net debt issuance",         "net_issuance_payments_of_debt"),
+    ("Stock repurchase",          "repurchase_of_capital_stock"),
+    ("Cash dividends paid",       "cash_dividends_paid"),
+    ("Change in cash",            "changes_in_cash"),
+    ("Beginning cash",            "beginning_cash_position"),
+    ("Ending cash",               "end_cash_position"),
+]

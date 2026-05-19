@@ -1,0 +1,207 @@
+{% load format_filters %}
+
+{% if altman_error %}
+    <div class="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">
+        Couldn't compute Z-score: {{ altman_error }}
+    </div>
+{% elif not altman_outputs %}
+    <div class="text-gray-500">No result computed.</div>
+{% else %}
+
+    {# Color the headline by zone. #}
+    {% if altman_outputs.zone == "Safe" %}
+        {% with zone_color="text-green-700" zone_bg="bg-green-50" zone_border="border-green-200" zone_badge="bg-green-100 text-green-800" %}
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                <div class="{{ zone_bg }} border {{ zone_border }} rounded p-4 sm:col-span-2 flex items-center gap-6">
+                    <div>
+                        <div class="text-xs uppercase tracking-wide text-gray-500">Z-Score</div>
+                        <div class="text-5xl font-mono font-bold {{ zone_color }}">
+                            {{ altman_outputs.z_score|floatformat:2 }}
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-xs uppercase tracking-wide text-gray-500">Zone</div>
+                        <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold {{ zone_badge }}">
+                            {{ altman_outputs.zone }}
+                        </span>
+                    </div>
+                </div>
+                <div class="bg-white border border-gray-200 rounded p-4 text-sm text-gray-600">
+                    <div class="font-semibold text-gray-800 mb-1">Interpretation</div>
+                    Z &gt; 2.99: low historical bankruptcy probability for
+                    public manufacturers within ~2 years.
+                </div>
+            </div>
+        {% endwith %}
+    {% elif altman_outputs.zone == "Grey" %}
+        {% with zone_color="text-yellow-700" zone_bg="bg-yellow-50" zone_border="border-yellow-200" zone_badge="bg-yellow-100 text-yellow-800" %}
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                <div class="{{ zone_bg }} border {{ zone_border }} rounded p-4 sm:col-span-2 flex items-center gap-6">
+                    <div>
+                        <div class="text-xs uppercase tracking-wide text-gray-500">Z-Score</div>
+                        <div class="text-5xl font-mono font-bold {{ zone_color }}">
+                            {{ altman_outputs.z_score|floatformat:2 }}
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-xs uppercase tracking-wide text-gray-500">Zone</div>
+                        <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold {{ zone_badge }}">
+                            {{ altman_outputs.zone }}
+                        </span>
+                    </div>
+                </div>
+                <div class="bg-white border border-gray-200 rounded p-4 text-sm text-gray-600">
+                    <div class="font-semibold text-gray-800 mb-1">Interpretation</div>
+                    1.81 &le; Z &le; 2.99: indeterminate. Treat as a monitor;
+                    layer other diagnostics (debt coverage, trend).
+                </div>
+            </div>
+        {% endwith %}
+    {% else %}
+        {% with zone_color="text-red-700" zone_bg="bg-red-50" zone_border="border-red-200" zone_badge="bg-red-100 text-red-800" %}
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                <div class="{{ zone_bg }} border {{ zone_border }} rounded p-4 sm:col-span-2 flex items-center gap-6">
+                    <div>
+                        <div class="text-xs uppercase tracking-wide text-gray-500">Z-Score</div>
+                        <div class="text-5xl font-mono font-bold {{ zone_color }}">
+                            {{ altman_outputs.z_score|floatformat:2 }}
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-xs uppercase tracking-wide text-gray-500">Zone</div>
+                        <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold {{ zone_badge }}">
+                            {{ altman_outputs.zone }}
+                        </span>
+                    </div>
+                </div>
+                <div class="bg-white border border-gray-200 rounded p-4 text-sm text-gray-600">
+                    <div class="font-semibold text-gray-800 mb-1">Interpretation</div>
+                    Z &lt; 1.81: elevated historical bankruptcy probability
+                    within ~2 years. Treat with caution.
+                </div>
+            </div>
+        {% endwith %}
+    {% endif %}
+
+    {% if altman_outputs.warning %}
+        <div class="bg-yellow-50 border border-yellow-200 text-yellow-900 px-3 py-2 rounded text-sm mb-4">
+            <strong>Partial data:</strong> {{ altman_outputs.warning }}.
+            The score is computed from the remaining components.
+        </div>
+    {% endif %}
+
+    {#
+        Zone bar: a horizontal track from Z=0 (left) to Z=6 (right) split into
+        three colored segments (Distress red 0..1.81, Grey yellow 1.81..2.99,
+        Safe green 2.99..6) with an absolute-positioned marker for this
+        company's Z-score. Marker position is computed in views via plain
+        CSS percentages: 1.81/6 = 30.17%, 2.99/6 = 49.83%.
+        We clamp the marker position into [0%, 100%] in the template to
+        keep extreme Z-scores visible at the edges.
+    #}
+    {% with z=altman_outputs.z_score %}
+    <div class="bg-white border border-gray-200 rounded p-4 mb-4">
+        <div class="text-sm font-semibold text-gray-700 mb-3">Where this score lands</div>
+        <div class="relative h-8 rounded overflow-hidden flex">
+            {# Distress: 0..1.81 -> width 30.17% #}
+            <div class="bg-red-300" style="width: 30.17%"></div>
+            {# Grey: 1.81..2.99 -> width 19.66% #}
+            <div class="bg-yellow-300" style="width: 19.66%"></div>
+            {# Safe: 2.99..6 -> width 50.17% #}
+            <div class="bg-green-300" style="width: 50.17%"></div>
+            {# Marker: clamp z/6*100 to [0, 100] #}
+            {% if z <= 0 %}
+                <div class="absolute top-0 bottom-0 w-0.5 bg-gray-900" style="left: 0%"></div>
+            {% elif z >= 6 %}
+                <div class="absolute top-0 bottom-0 w-0.5 bg-gray-900" style="left: 100%"></div>
+            {% else %}
+                <div class="absolute top-0 bottom-0 w-0.5 bg-gray-900"
+                     style="left: {% widthratio z 6 100 %}%"></div>
+            {% endif %}
+        </div>
+        <div class="relative h-4 mt-1 text-xs text-gray-600 font-mono">
+            <span class="absolute" style="left: 0%; transform: translateX(0);">0</span>
+            <span class="absolute" style="left: 30.17%; transform: translateX(-50%);">1.81</span>
+            <span class="absolute" style="left: 49.83%; transform: translateX(-50%);">2.99</span>
+            <span class="absolute" style="right: 0%;">6</span>
+        </div>
+        <div class="flex items-center gap-4 mt-3 text-xs text-gray-600">
+            <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 bg-red-300 rounded-sm"></span>Distress</span>
+            <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 bg-yellow-300 rounded-sm"></span>Grey</span>
+            <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 bg-green-300 rounded-sm"></span>Safe</span>
+        </div>
+    </div>
+    {% endwith %}
+
+    <div class="bg-white border border-gray-200 rounded overflow-hidden">
+        <table class="w-full text-sm">
+            <thead class="bg-gray-50 text-gray-600 text-left text-xs uppercase tracking-wide">
+                <tr>
+                    <th class="px-3 py-2 w-10">#</th>
+                    <th class="px-3 py-2">Ratio</th>
+                    <th class="px-3 py-2 text-right">Value</th>
+                    <th class="px-3 py-2 text-right">× Coef</th>
+                    <th class="px-3 py-2 text-right">= Weighted</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for c in altman_outputs.components %}
+                <tr>
+                    <td class="px-3 py-2 font-mono text-gray-500">
+                        {% if forloop.counter == 1 %}A{% endif %}
+                        {% if forloop.counter == 2 %}B{% endif %}
+                        {% if forloop.counter == 3 %}C{% endif %}
+                        {% if forloop.counter == 4 %}D{% endif %}
+                        {% if forloop.counter == 5 %}E{% endif %}
+                    </td>
+                    <td class="px-3 py-2">{{ c.name }}</td>
+                    <td class="px-3 py-2 text-right font-mono">
+                        {% if c.ratio is None %}n/a{% else %}{{ c.ratio|floatformat:3 }}{% endif %}
+                    </td>
+                    <td class="px-3 py-2 text-right font-mono text-gray-500">
+                        {{ c.coefficient|floatformat:2 }}
+                    </td>
+                    <td class="px-3 py-2 text-right font-mono">
+                        {% if c.weighted is None %}n/a{% else %}{{ c.weighted|floatformat:3 }}{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                <tr class="bg-gray-50 font-semibold">
+                    <td class="px-3 py-2"></td>
+                    <td class="px-3 py-2">Z-Score (sum)</td>
+                    <td colspan="2"></td>
+                    <td class="px-3 py-2 text-right font-mono">{{ altman_outputs.z_score|floatformat:3 }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="bg-white border border-gray-200 rounded p-4 mt-4 text-sm">
+        <div class="font-semibold text-gray-800 mb-2">Inputs used</div>
+        <dl class="grid grid-cols-2 gap-y-1.5 text-sm">
+            <dt class="text-gray-600">Working capital</dt>
+            <dd class="text-right font-mono">{{ altman_inputs.working_capital|money }}</dd>
+            <dt class="text-gray-600">Total assets</dt>
+            <dd class="text-right font-mono">{{ altman_inputs.total_assets|money }}</dd>
+            <dt class="text-gray-600">Retained earnings</dt>
+            <dd class="text-right font-mono">{{ altman_inputs.retained_earnings|money }}</dd>
+            <dt class="text-gray-600">EBIT</dt>
+            <dd class="text-right font-mono">{{ altman_inputs.ebit|money }}</dd>
+            <dt class="text-gray-600">Market value of equity</dt>
+            <dd class="text-right font-mono">{{ altman_inputs.market_value_equity|money }}</dd>
+            <dt class="text-gray-600">Total liabilities</dt>
+            <dd class="text-right font-mono">{{ altman_inputs.total_liabilities|money }}</dd>
+            <dt class="text-gray-600">Revenue</dt>
+            <dd class="text-right font-mono">{{ altman_inputs.revenue|money }}</dd>
+        </dl>
+    </div>
+
+    <div class="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-900 mt-4">
+        The Altman Z-Score (Edward Altman, 1968) predicts bankruptcy risk within
+        2 years using a weighted combination of 5 ratios. Calibrated on public
+        manufacturers — extend with caution to financials (banks have very
+        different leverage) and to non-manufacturers (consider the Z'-Score
+        variant).
+    </div>
+
+{% endif %}

@@ -1,0 +1,28 @@
+{% load format_filters %}
+
+<div class="space-y-4">
+    <div class="flex items-baseline justify-between flex-wrap gap-2 border-b border-gray-200 pb-2">
+        <div>
+            <div class="text-xs uppercase tracking-wide text-gray-500">{{ model_category }}</div>
+            <h2 class="text-2xl font-semibold">{{ model_label }}</h2>
+        </div>
+        <a href="{% url 'valuation:models_index' ticker=ticker %}"
+           hx-get="{% url 'valuation:models_index' ticker=ticker %}"
+           hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
+           class="text-sm text-blue-600 hover:underline">← All models</a>
+    </div>
+
+    <div class="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-900">
+        <strong>Margin trend</strong> reveals whether the business is gaining or
+        losing pricing power. Expanding margins amid revenue growth suggest
+        competitive moat strengthening; compressing margins amid growth often
+        signal commodification or competitive intensity.
+    </div>
+
+    <section>
+        <h3 class="text-lg font-semibold mb-3">Results</h3>
+        <div id="margin-results">
+            {% include "valuation/_margin_analysis_results.html" %}
+        </div>
+    </section>
+</div>

@@ -1,0 +1,88 @@
+{% load format_filters %}
+
+<div class="space-y-4">
+    <div class="flex items-baseline justify-between flex-wrap gap-2 border-b border-gray-200 pb-2">
+        <div>
+            <div class="text-xs uppercase tracking-wide text-gray-500">{{ model_category }}</div>
+            <h2 class="text-2xl font-semibold">{{ model_label }}</h2>
+        </div>
+        <a href="{% url 'valuation:models_index' ticker=ticker %}"
+           hx-get="{% url 'valuation:models_index' ticker=ticker %}"
+           hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
+           class="text-sm text-blue-600 hover:underline">← All models</a>
+    </div>
+
+    <div class="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-900">
+        Projects <strong>net income</strong> forward N years, applies a
+        terminal <strong>P/E</strong> to estimate the future market cap, then
+        discounts that figure back to today. Equity-side analogue of an
+        exit-multiple DCF — simpler, but assumes the P/E framework is meaningful
+        (i.e. the firm is profitable on a normalized basis).
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Assumptions form -->
+        <aside class="lg:col-span-1">
+            <h3 class="text-lg font-semibold mb-3">Assumptions</h3>
+            <form method="get"
+                  hx-get="{% url 'valuation:discounted_future_mcap' ticker=ticker %}"
+                  hx-target="#dfmc-results"
+                  hx-swap="innerHTML"
+                  hx-trigger="change delay:400ms, submit"
+                  class="space-y-3 bg-white border border-gray-200 rounded p-4">
+                <input type="hidden" name="partial" value="results">
+
+                <label class="block">
+                    <span class="text-sm text-gray-700">Net income growth rate</span>
+                    <div class="flex items-center gap-2">
+                        <input type="number" name="net_income_growth_rate" step="0.005"
+                               value="{{ dfmc_inputs.net_income_growth_rate|stringformat:".4f" }}"
+                               class="w-full px-2 py-1 border border-gray-300 rounded font-mono text-sm">
+                        <span class="text-xs text-gray-500">decimal</span>
+                    </div>
+                </label>
+
+                <label class="block">
+                    <span class="text-sm text-gray-700">Terminal P/E</span>
+                    <input type="number" name="terminal_pe" step="0.5" min="0.1"
+                           value="{{ dfmc_inputs.terminal_pe|stringformat:".2f" }}"
+                           class="w-full px-2 py-1 border border-gray-300 rounded font-mono text-sm">
+                    <span class="text-xs text-gray-500">multiple on Year N net income</span>
+                </label>
+
+                <label class="block">
+                    <span class="text-sm text-gray-700">Discount rate</span>
+                    <input type="number" name="discount_rate" step="0.005"
+                           value="{{ dfmc_inputs.discount_rate|stringformat:".4f" }}"
+                           class="w-full px-2 py-1 border border-gray-300 rounded font-mono text-sm">
+                    <span class="text-xs text-gray-500">required return / cost of equity</span>
+                </label>
+
+                <label class="block">
+                    <span class="text-sm text-gray-700">Projection years</span>
+                    <input type="number" name="projection_years" step="1" min="1" max="20"
+                           value="{{ dfmc_inputs.projection_years }}"
+                           class="w-full px-2 py-1 border border-gray-300 rounded font-mono text-sm">
+                </label>
+
+                <div class="pt-2 border-t border-gray-200 text-xs text-gray-500 space-y-0.5">
+                    <div>Base net income: <span class="font-mono">{{ dfmc_inputs.base_net_income|money }}</span></div>
+                    <div>Diluted shares: <span class="font-mono">{{ dfmc_inputs.shares_outstanding|humanize }}</span></div>
+                </div>
+
+                <button type="submit" class="w-full px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
+                    Recalculate
+                </button>
+            </form>
+        </aside>
+
+        <!-- Results panel -->
+        <section class="lg:col-span-2">
+            <h3 class="text-lg font-semibold mb-3">Results</h3>
+            <div id="dfmc-results">
+                {% include "valuation/_discounted_future_mcap_results.html" %}
+            </div>
+        </section>
+    </div>
+</div>

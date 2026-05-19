@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load format_filters %}
+
+{% block title %}Watchlist — Valmetrics{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+    <div class="flex items-baseline justify-between">
+        <h1 class="text-2xl font-semibold">Watchlist</h1>
+        <span class="text-sm text-gray-500">{{ rows|length }} ticker{{ rows|length|pluralize }}</span>
+    </div>
+
+    {% if not rows %}
+    <div class="text-center py-12 text-gray-500">
+        <p class="mb-3">No tickers watched yet.</p>
+        <p class="text-sm">Search for a ticker above and click "Add to watchlist" on its page.</p>
+    </div>
+    {% else %}
+
+    <div class="overflow-x-auto border border-gray-200 rounded">
+        <table class="min-w-full text-sm">
+            <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                    <th class="text-left px-3 py-2 font-medium text-gray-700">Ticker</th>
+                    <th class="text-left px-3 py-2 font-medium text-gray-700">Name</th>
+                    <th class="text-right px-3 py-2 font-medium text-gray-700">Price</th>
+                    <th class="text-right px-3 py-2 font-medium text-gray-700">Change</th>
+                    <th class="text-right px-3 py-2 font-medium text-gray-700">DCF fair value</th>
+                    <th class="text-right px-3 py-2 font-medium text-gray-700">Upside</th>
+                    <th class="text-left px-3 py-2 font-medium text-gray-700 w-1/4">Notes</th>
+                    <th class="px-3 py-2"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr class="border-b border-gray-100 hover:bg-gray-50 align-top">
+                    <td class="px-3 py-2 font-medium">
+                        <a href="{% url 'companies:overview' ticker=row.item.ticker %}"
+                           class="text-blue-600 hover:underline">
+                            {{ row.item.ticker }}
+                        </a>
+                    </td>
+                    <td class="px-3 py-2">
+                        {% if row.profile %}{{ row.profile.name }}{% else %}<span class="text-gray-400">—</span>{% endif %}
+                    </td>
+                    <td class="px-3 py-2 text-right font-mono">
+                        {% if row.quote %}{{ row.quote.currency }} {{ row.quote.price|floatformat:2 }}{% else %}—{% endif %}
+                    </td>
+                    <td class="px-3 py-2 text-right font-mono {{ row.quote.change|signed_color }}">
+                        {% if row.quote and row.quote.change_percent is not None %}
+                            {{ row.quote.change_percent|floatformat:2 }}%
+                        {% else %}—{% endif %}
+                    </td>
+                    <td class="px-3 py-2 text-right font-mono">
+                        {% if row.fair_value %}
+                            {{ row.profile.currency|default:"" }} {{ row.fair_value|floatformat:2 }}
+                        {% else %}—{% endif %}
+                    </td>
+                    <td class="px-3 py-2 text-right font-mono {{ row.upside_pct|signed_color }}">
+                        {% if row.upside_pct is not None %}{{ row.upside_pct|percent }}{% else %}—{% endif %}
+                    </td>
+                    <td class="px-3 py-2">
+                        <form>
+                            <textarea
+                                name="notes"
+                                hx-post="{% url 'watchlist:update_notes' item_id=row.item.id %}"
+                                hx-trigger="blur changed"
+                                hx-swap="none"
+                                rows="2"
+                                placeholder="Notes…"
+                                class="w-full px-2 py-1 text-xs border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-400 font-mono">{{ row.item.notes }}</textarea>
+                        </form>
+                    </td>
+                    <td class="px-3 py-2 text-right whitespace-nowrap">
+                        <button type="button"
+                                hx-post="{% url 'watchlist:remove' %}?ticker={{ row.item.ticker }}"
+                                hx-target="closest tr"
+                                hx-swap="delete"
+                                class="text-xs text-red-600 hover:underline">
+                            Remove
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

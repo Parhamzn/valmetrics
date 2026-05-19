@@ -1,0 +1,132 @@
+{% load format_filters %}
+
+<div class="space-y-6">
+
+    {% if ratios_error %}
+        <div class="text-sm text-red-600 bg-red-50 border border-red-200 rounded p-3">
+            {{ ratios_error }}
+        </div>
+    {% elif ratios is None %}
+        <div class="text-sm text-gray-500">No data available.</div>
+    {% else %}
+
+        <section class="space-y-2">
+            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Valuation</h3>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div class="bg-white border border-gray-200 rounded p-3">
+                    <div class="text-xs text-gray-500">P/E</div>
+                    <div class="text-xl font-mono text-gray-900">
+                        {% if ratios.pe is None %}
+                            {% if is_loss_making %}<span title="Loss-making — P/E undefined" class="text-gray-400">n/m</span>
+                            {% else %}<span title="Data unavailable from upstream">—</span>{% endif %}
+                        {% else %}{{ ratios.pe|floatformat:2 }}{% endif %}
+                    </div>
+                </div>
+                <div class="bg-white border border-gray-200 rounded p-3">
+                    <div class="text-xs text-gray-500">Forward P/E</div>
+                    <div class="text-xl font-mono text-gray-900">
+                        {% if ratios.forward_pe is None %}
+                            {% if is_loss_making %}<span title="Analysts expect continued losses — forward P/E undefined" class="text-gray-400">n/m</span>
+                            {% else %}<span title="Data unavailable from upstream">—</span>{% endif %}
+                        {% else %}{{ ratios.forward_pe|floatformat:2 }}{% endif %}
+                    </div>
+                </div>
+                <div class="bg-white border border-gray-200 rounded p-3">
+                    <div class="text-xs text-gray-500">PEG</div>
+                    <div class="text-xl font-mono text-gray-900">
+                        {% if ratios.peg is None %}—{% else %}{{ ratios.peg|floatformat:2 }}{% endif %}
+                    </div>
+                </div>
+                <div class="bg-white border border-gray-200 rounded p-3">
+                    <div class="text-xs text-gray-500">Price / Book</div>
+                    <div class="text-xl font-mono text-gray-900">
+                        {% if ratios.price_to_book is None %}—{% else %}{{ ratios.price_to_book|floatformat:2 }}{% endif %}
+                    </div>
+                </div>
+                <div class="bg-white border border-gray-200 rounded p-3">
+                    <div class="text-xs text-gray-500">Price / Sales</div>
+                    <div class="text-xl font-mono text-gray-900">
+                        {% if ratios.price_to_sales is None %}—{% else %}{{ ratios.price_to_sales|floatformat:2 }}{% endif %}
+                    </div>
+                </div>
+                <div class="bg-white border border-gray-200 rounded p-3">
+                    <div class="text-xs text-gray-500">EV / EBITDA</div>
+                    <div class="text-xl font-mono text-gray-900">
+                        {% if ratios.ev_to_ebitda is None %}—{% else %}{{ ratios.ev_to_ebitda|floatformat:2 }}{% endif %}
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="space-y-2">
+            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Profitability</h3>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div class="bg-white border border-gray-200 rounded p-3">
+                    <div class="text-xs text-gray-500">Gross margin</div>
+                    <div class="text-xl font-mono text-gray-900">{{ ratios.gross_margin|percent }}</div>
+                </div>
+                <div class="bg-white border border-gray-200 rounded p-3">
+                    <div class="text-xs text-gray-500">Operating margin</div>
+                    <div class="text-xl font-mono text-gray-900">{{ ratios.operating_margin|percent }}</div>
+                </div>
+                <div class="bg-white border border-gray-200 rounded p-3">
+                    <div class="text-xs text-gray-500">Profit margin</div>
+                    <div class="text-xl font-mono text-gray-900">{{ ratios.profit_margin|percent }}</div>
+                </div>
+                <div class="bg-white border border-gray-200 rounded p-3">
+                    <div class="text-xs text-gray-500">Return on equity</div>
+                    <div class="text-xl font-mono text-gray-900">{{ ratios.return_on_equity|percent }}</div>
+                </div>
+                <div class="bg-white border border-gray-200 rounded p-3">
+                    <div class="text-xs text-gray-500">Return on assets</div>
+                    <div class="text-xl font-mono text-gray-900">{{ ratios.return_on_assets|percent }}</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="space-y-2">
+            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Financial health</h3>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div class="bg-white border border-gray-200 rounded p-3">
+                    <div class="text-xs text-gray-500">Debt / Equity</div>
+                    <div class="text-xl font-mono text-gray-900">
+                        {% if ratios.debt_to_equity is None %}—{% else %}{{ ratios.debt_to_equity|floatformat:2 }}{% endif %}
+                    </div>
+                </div>
+                <div class="bg-white border border-gray-200 rounded p-3">
+                    <div class="text-xs text-gray-500">Current ratio</div>
+                    <div class="text-xl font-mono text-gray-900">
+                        {% if ratios.current_ratio is None %}—{% else %}{{ ratios.current_ratio|floatformat:2 }}{% endif %}
+                    </div>
+                </div>
+                <div class="bg-white border border-gray-200 rounded p-3">
+                    <div class="text-xs text-gray-500">Beta (5y)</div>
+                    <div class="text-xl font-mono text-gray-900">
+                        {% if ratios.beta is None %}—{% else %}{{ ratios.beta|floatformat:2 }}{% endif %}
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="space-y-2">
+            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Income</h3>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div class="bg-white border border-gray-200 rounded p-3">
+                    <div class="text-xs text-gray-500">Dividend yield</div>
+                    <div class="text-xl font-mono text-gray-900">
+                        {% if ratios.dividend_yield is not None %}
+                            {{ ratios.dividend_yield|percent }}
+                        {% elif pays_dividend is False %}
+                            <span title="Company pays no dividend" class="text-gray-500">0.00%</span>
+                            <div class="text-[10px] uppercase tracking-wide text-gray-400">no payouts</div>
+                        {% else %}
+                            <span title="Data unavailable from upstream">—</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    {% endif %}
+
+</div>

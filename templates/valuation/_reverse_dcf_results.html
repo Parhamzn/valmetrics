@@ -1,0 +1,54 @@
+{% load format_filters %}
+
+{% if reverse_error %}
+    <div class="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">
+        Couldn't run reverse DCF: {{ reverse_error }}
+    </div>
+{% elif not reverse_outputs %}
+    <div class="text-gray-500">No result computed.</div>
+{% else %}
+
+    <!-- Headline: implied growth as the big number -->
+    <div class="bg-white border border-gray-200 rounded p-5 mb-4">
+        <div class="text-xs uppercase text-gray-500 mb-1">Implied revenue growth rate</div>
+        <div class="text-4xl font-mono font-semibold">
+            {% if reverse_outputs.implied_revenue_growth is not None %}
+                {{ reverse_outputs.implied_revenue_growth|percent }}
+            {% else %}—{% endif %}
+        </div>
+        <div class="text-sm text-gray-600 mt-1">
+            needed to justify current price of
+            <span class="font-mono">{{ quote.currency }} {{ current_price|floatformat:2 }}</span>
+        </div>
+        <div class="mt-3 text-xs text-gray-500">
+            {% if reverse_outputs.converged %}
+                Converged in {{ reverse_outputs.iterations }} iteration{{ reverse_outputs.iterations|pluralize }}.
+                DCF value at solution:
+                <span class="font-mono">{{ quote.currency }} {{ reverse_outputs.final_fair_value|floatformat:2 }}</span>.
+            {% else %}
+                <span class="text-yellow-700">Did not converge within search bounds — result clipped.</span>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if reverse_outputs.warning %}
+    <div class="bg-yellow-50 border border-yellow-200 text-yellow-900 px-3 py-2 rounded text-sm mb-4">
+        <strong>Heads up:</strong> {{ reverse_outputs.warning }}
+    </div>
+    {% endif %}
+
+    <!-- Interpretation guide -->
+    <div class="bg-white border border-gray-200 rounded p-4 text-sm space-y-2">
+        <h4 class="font-semibold text-gray-700">How to read this</h4>
+        <p class="text-gray-700">
+            The reverse DCF holds every other assumption (margin, WACC,
+            reinvestment, terminal growth) fixed and asks the model what
+            revenue growth rate would make the DCF value equal the market
+            price. If that implied growth looks higher than the company
+            can plausibly sustain, the market is pricing the stock
+            optimistically; if it looks negative or trivially low, the
+            market may be pricing in trouble.
+        </p>
+    </div>
+
+{% endif %}

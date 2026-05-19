@@ -1,0 +1,67 @@
+{% load format_filters %}
+
+<div class="space-y-4">
+    <div class="flex items-baseline justify-between flex-wrap gap-2 border-b border-gray-200 pb-2">
+        <div>
+            <div class="text-xs uppercase tracking-wide text-gray-500">{{ model_category }}</div>
+            <h2 class="text-2xl font-semibold">{{ model_label }}</h2>
+        </div>
+        <a href="{% url 'valuation:models_index' ticker=ticker %}"
+           hx-get="{% url 'valuation:models_index' ticker=ticker %}"
+           hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
+           class="text-sm text-blue-600 hover:underline">← All models</a>
+    </div>
+
+    <div class="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-900">
+        <strong>ROIC</strong> measures how efficiently a company turns invested
+        capital into operating profit. Compared to WACC it shows whether the
+        business creates or destroys value. Sustained ROIC &gt; WACC by a wide
+        margin is the hallmark of a competitive moat
+        (Buffett: <em>"the only thing that matters in the long run"</em>).
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Minimal form: just the WACC benchmark -->
+        <aside class="lg:col-span-1">
+            <h3 class="text-lg font-semibold mb-3">Benchmark</h3>
+            <form method="get"
+                  hx-get="{% url 'valuation:roic' ticker=ticker %}"
+                  hx-target="#roic-results"
+                  hx-swap="innerHTML"
+                  hx-trigger="change delay:400ms, submit"
+                  class="space-y-3 bg-white border border-gray-200 rounded p-4">
+                <input type="hidden" name="partial" value="results">
+
+                <label class="block">
+                    <span class="text-sm text-gray-700">WACC (comparison line)</span>
+                    <input type="number" name="wacc_estimate" step="0.005"
+                           value="{{ roic_inputs.wacc_estimate|stringformat:".4f" }}"
+                           class="w-full px-2 py-1 border border-gray-300 rounded font-mono text-sm">
+                    <span class="text-xs text-gray-500">
+                        Default 8%. Override to use a firm-specific WACC.
+                    </span>
+                </label>
+
+                <div class="pt-2 border-t border-gray-200 text-xs text-gray-500 space-y-0.5">
+                    <div><strong>Formula:</strong></div>
+                    <div>NOPAT = EBIT × (1 − tax)</div>
+                    <div>IC = Equity + LT Debt + ST Debt − Cash</div>
+                    <div>ROIC = NOPAT / IC</div>
+                </div>
+
+                <button type="submit" class="w-full px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
+                    Recalculate
+                </button>
+            </form>
+        </aside>
+
+        <!-- Results panel -->
+        <section class="lg:col-span-2">
+            <h3 class="text-lg font-semibold mb-3">Results</h3>
+            <div id="roic-results">
+                {% include "valuation/_roic_results.html" %}
+            </div>
+        </section>
+    </div>
+</div>

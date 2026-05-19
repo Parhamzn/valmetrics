@@ -1,0 +1,25 @@
+{% load format_filters %}
+
+<div class="space-y-4">
+    <div class="flex items-baseline justify-between flex-wrap gap-2 border-b border-gray-200 pb-2">
+        <div>
+            <div class="text-xs uppercase tracking-wide text-gray-500">{{ model_category }}</div>
+            <h2 class="text-2xl font-semibold">{{ model_label }}</h2>
+        </div>
+        <a href="{% url 'valuation:models_index' ticker=ticker %}"
+           hx-get="{% url 'valuation:models_index' ticker=ticker %}"
+           hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
+           class="text-sm text-blue-600 hover:underline">← All models</a>
+    </div>
+
+    <div class="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-900">
+        The <strong>Piotroski F-Score</strong> is a 9-point checklist that flags
+        financially strong firms among value stocks. Each of nine binary signals
+        across profitability, leverage / liquidity, and operating efficiency
+        contributes one point if satisfied.
+    </div>
+
+    <div id="piotroski-results">
+        {% include "valuation/_piotroski_results.html" %}
+    </div>
+</div>

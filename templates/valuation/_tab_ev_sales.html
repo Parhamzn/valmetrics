@@ -1,0 +1,90 @@
+{% load format_filters %}
+
+<div class="space-y-4">
+    <div class="flex items-baseline justify-between flex-wrap gap-2 border-b border-gray-200 pb-2">
+        <div>
+            <div class="text-xs uppercase tracking-wide text-gray-500">{{ model_category }}</div>
+            <h2 class="text-2xl font-semibold">{{ model_label }}</h2>
+        </div>
+        <a href="{% url 'valuation:models_index' ticker=ticker %}"
+           hx-get="{% url 'valuation:models_index' ticker=ticker %}"
+           hx-target="#tab-panel" hx-swap="innerHTML" hx-push-url="true"
+           class="text-sm text-blue-600 hover:underline">&larr; All models</a>
+    </div>
+
+    <div class="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-900">
+        Apply an <strong>EV/Revenue</strong> multiple to current sales. Useful for high-growth,
+        unprofitable companies (early-stage tech, biotech) where EBITDA-based multiples don't work.
+        Common for valuing SaaS, biopharma, and pre-profit companies.
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Assumptions form -->
+        <aside class="lg:col-span-1">
+            <h3 class="text-lg font-semibold mb-3">Assumptions</h3>
+            <form method="get"
+                  hx-get="{% url 'valuation:ev_sales' ticker=ticker %}"
+                  hx-target="#ev-sales-results"
+                  hx-swap="innerHTML"
+                  hx-trigger="change delay:400ms, submit"
+                  class="space-y-3 bg-white border border-gray-200 rounded p-4">
+                <input type="hidden" name="partial" value="results">
+
+                <label class="block">
+                    <span class="text-sm text-gray-700">Target EV/Sales multiple</span>
+                    <div class="flex items-center gap-2">
+                        <input type="number" name="target_ev_sales" step="0.1" min="0"
+                               value="{{ ev_sales_inputs.target_ev_sales|stringformat:".2f" }}"
+                               class="w-full px-2 py-1 border border-gray-300 rounded font-mono text-sm">
+                        <span class="text-xs text-gray-500">&times;</span>
+                    </div>
+                    {% if current_ev_sales is not None %}
+                        <span class="text-xs text-gray-500">
+                            current: {{ current_ev_sales|floatformat:2 }}&times;
+                        </span>
+                    {% endif %}
+                </label>
+
+                <label class="block">
+                    <span class="text-sm text-gray-700">Revenue (trailing)</span>
+                    <div class="flex items-center gap-2">
+                        <input type="number" name="revenue" step="1000000"
+                               value="{{ ev_sales_inputs.revenue|stringformat:".2f" }}"
+                               class="w-full px-2 py-1 border border-gray-300 rounded font-mono text-sm">
+                        <span class="text-xs text-gray-500">{{ profile.currency }}</span>
+                    </div>
+                </label>
+
+                <label class="block">
+                    <span class="text-sm text-gray-700">Net debt</span>
+                    <div class="flex items-center gap-2">
+                        <input type="number" name="net_debt" step="1000000"
+                               value="{{ ev_sales_inputs.net_debt|stringformat:".2f" }}"
+                               class="w-full px-2 py-1 border border-gray-300 rounded font-mono text-sm">
+                        <span class="text-xs text-gray-500">{{ profile.currency }}</span>
+                    </div>
+                </label>
+
+                <div class="pt-2 border-t border-gray-200 text-xs text-gray-500 space-y-0.5">
+                    <div>Diluted shares: <span class="font-mono">{{ ev_sales_inputs.shares_outstanding|humanize }}</span></div>
+                    {% if ratios_price_to_sales is not None %}
+                        <div>P/S (equity-side): <span class="font-mono">{{ ratios_price_to_sales|floatformat:2 }}&times;</span></div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="w-full px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
+                    Recalculate
+                </button>
+            </form>
+        </aside>
+
+        <!-- Results panel -->
+        <section class="lg:col-span-2">
+            <h3 class="text-lg font-semibold mb-3">Results</h3>
+            <div id="ev-sales-results">
+                {% include "valuation/_ev_sales_results.html" %}
+            </div>
+        </section>
+    </div>
+</div>

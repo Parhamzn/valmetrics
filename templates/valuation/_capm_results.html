@@ -1,0 +1,62 @@
+{% load format_filters %}
+
+{% if capm_error %}
+    <div class="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">
+        Couldn't compute CAPM: {{ capm_error }}
+    </div>
+{% elif not capm_outputs %}
+    <div class="text-gray-500">No result computed.</div>
+{% else %}
+
+    <!-- Headline cost of equity -->
+    <div class="bg-blue-600 text-white rounded p-6 mb-4">
+        <div class="text-xs uppercase tracking-wide opacity-80">Cost of equity (Ke)</div>
+        <div class="text-5xl font-mono mt-1">
+            {{ capm_outputs.cost_of_equity|percent }}
+        </div>
+        <div class="text-sm opacity-80 mt-2">
+            The annual return required by equity investors given this stock's systematic risk.
+        </div>
+    </div>
+
+    <!-- Formula breakdown -->
+    <div class="bg-white border border-gray-200 rounded p-4">
+        <h4 class="text-sm font-semibold text-gray-700 mb-3">Formula breakdown</h4>
+        <div class="font-mono text-sm text-gray-700 mb-3">
+            Ke = Rf + β × ERP
+        </div>
+        <dl class="grid grid-cols-2 gap-y-1.5 text-sm">
+            <dt class="text-gray-600">Risk-free rate (Rf)</dt>
+            <dd class="text-right font-mono">{{ capm_inputs.risk_free_rate|percent }}</dd>
+
+            <dt class="text-gray-600">Beta (β)</dt>
+            <dd class="text-right font-mono">{{ capm_inputs.beta|floatformat:3 }}</dd>
+
+            <dt class="text-gray-600">× Equity risk premium (ERP)</dt>
+            <dd class="text-right font-mono">{{ capm_inputs.equity_risk_premium|percent }}</dd>
+
+            <dt class="text-gray-600 border-t border-gray-200 pt-2 mt-1">+ β × ERP</dt>
+            <dd class="text-right font-mono border-t border-gray-200 pt-2 mt-1">
+                {% widthratio capm_inputs.beta 1 capm_inputs.equity_risk_premium as _unused %}
+                {{ capm_inputs.beta|floatformat:3 }} × {{ capm_inputs.equity_risk_premium|percent }}
+            </dd>
+
+            <dt class="text-gray-700 font-medium border-t border-gray-200 pt-2 mt-1">= Cost of equity (Ke)</dt>
+            <dd class="text-right font-mono font-medium border-t border-gray-200 pt-2 mt-1">
+                {{ capm_outputs.cost_of_equity|percent }}
+            </dd>
+        </dl>
+    </div>
+
+    <div class="mt-4 text-xs text-gray-500 leading-relaxed">
+        <p>
+            <strong>Risk-free rate</strong> is the return on a default-free instrument with a
+            duration matching the cash flows being discounted — in practice, the 10-year US
+            Treasury yield. <strong>Beta</strong> measures how much the stock moves with the
+            broader market; β = 1 means it moves in lockstep, β &gt; 1 means it amplifies market
+            moves, β &lt; 1 means it dampens them. <strong>ERP</strong> is the historical extra
+            return investors have earned for bearing equity risk over Treasuries.
+        </p>
+    </div>
+
+{% endif %}

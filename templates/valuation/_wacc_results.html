@@ -1,0 +1,102 @@
+{% load format_filters %}
+
+{% if wacc_error %}
+    <div class="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">
+        Couldn't compute WACC: {{ wacc_error }}
+    </div>
+{% elif not wacc_outputs %}
+    <div class="text-gray-500">No result computed.</div>
+{% else %}
+
+    <!-- Headline WACC -->
+    <div class="bg-blue-600 text-white rounded p-6 mb-4">
+        <div class="text-xs uppercase tracking-wide opacity-80">WACC</div>
+        <div class="text-5xl font-mono mt-1">
+            {{ wacc_outputs.wacc|percent }}
+        </div>
+        <div class="text-sm opacity-80 mt-2">
+            The blended after-tax discount rate for firm-level cash flows.
+        </div>
+    </div>
+
+    <!-- Capital structure visual -->
+    <div class="bg-white border border-gray-200 rounded p-4 mb-4">
+        <h4 class="text-sm font-semibold text-gray-700 mb-2">Capital structure</h4>
+        <div class="flex w-full h-8 rounded overflow-hidden border border-gray-300">
+            <div class="bg-blue-500 text-white text-xs flex items-center justify-center"
+                 style="width: {{ equity_weight_pct|floatformat:2 }}%;"
+                 title="Equity weight">
+                {% if equity_weight_pct and equity_weight_pct >= 8 %}
+                    E {{ equity_weight_pct|floatformat:1 }}%
+                {% endif %}
+            </div>
+            <div class="bg-gray-500 text-white text-xs flex items-center justify-center"
+                 style="width: {{ debt_weight_pct|floatformat:2 }}%;"
+                 title="Debt weight">
+                {% if debt_weight_pct and debt_weight_pct >= 8 %}
+                    D {{ debt_weight_pct|floatformat:1 }}%
+                {% endif %}
+            </div>
+        </div>
+        <div class="flex justify-between text-xs text-gray-500 mt-1">
+            <span><span class="inline-block w-2 h-2 bg-blue-500 align-middle mr-1"></span>Equity: {{ wacc_inputs.market_value_equity|money }} ({{ wacc_outputs.equity_weight|percent }})</span>
+            <span><span class="inline-block w-2 h-2 bg-gray-500 align-middle mr-1"></span>Debt: {{ wacc_inputs.market_value_debt|money }} ({{ wacc_outputs.debt_weight|percent }})</span>
+        </div>
+    </div>
+
+    <!-- Formula breakdown -->
+    <div class="bg-white border border-gray-200 rounded p-4">
+        <h4 class="text-sm font-semibold text-gray-700 mb-3">Formula breakdown</h4>
+        <div class="font-mono text-sm text-gray-700 mb-3">
+            WACC = (E / V) × Ke + (D / V) × Kd × (1 − t)
+        </div>
+        <dl class="grid grid-cols-2 gap-y-1.5 text-sm">
+            <dt class="text-gray-600">Equity weight (E/V)</dt>
+            <dd class="text-right font-mono">{{ wacc_outputs.equity_weight|percent }}</dd>
+
+            <dt class="text-gray-600">× Cost of equity (Ke)</dt>
+            <dd class="text-right font-mono">{{ wacc_inputs.cost_of_equity|percent }}</dd>
+
+            <dt class="text-gray-700 font-medium border-t border-gray-200 pt-2 mt-1">= Equity contribution</dt>
+            <dd class="text-right font-mono font-medium border-t border-gray-200 pt-2 mt-1">
+                {% widthratio wacc_outputs.equity_weight 1 wacc_inputs.cost_of_equity as equity_contrib_x100 %}
+                {{ equity_contrib_x100|floatformat:2 }}%
+            </dd>
+
+            <dt class="text-gray-600 pt-2">Debt weight (D/V)</dt>
+            <dd class="text-right font-mono pt-2">{{ wacc_outputs.debt_weight|percent }}</dd>
+
+            <dt class="text-gray-600">× Cost of debt (Kd)</dt>
+            <dd class="text-right font-mono">{{ wacc_inputs.cost_of_debt|percent }}</dd>
+
+            <dt class="text-gray-600">× (1 − tax rate)</dt>
+            <dd class="text-right font-mono">{{ wacc_inputs.tax_rate|percent }} tax</dd>
+
+            <dt class="text-gray-600">= After-tax Kd</dt>
+            <dd class="text-right font-mono">{{ after_tax_kd|percent }}</dd>
+
+            <dt class="text-gray-700 font-medium border-t border-gray-200 pt-2 mt-1">= Debt contribution</dt>
+            <dd class="text-right font-mono font-medium border-t border-gray-200 pt-2 mt-1">
+                {% widthratio wacc_outputs.debt_weight 1 after_tax_kd as debt_contrib_x100 %}
+                {{ debt_contrib_x100|floatformat:2 }}%
+            </dd>
+
+            <dt class="text-gray-700 font-semibold border-t border-gray-300 pt-2 mt-2">= WACC</dt>
+            <dd class="text-right font-mono font-semibold border-t border-gray-300 pt-2 mt-2">
+                {{ wacc_outputs.wacc|percent }}
+            </dd>
+        </dl>
+    </div>
+
+    <div class="mt-4 text-xs text-gray-500 leading-relaxed">
+        <p>
+            The equity and debt weights are based on <strong>market values</strong>, not book
+            values — that's the theoretically correct approach because investors price securities
+            at market, not at historical cost. We use the firm's market capitalization for
+            equity and (as a practical shortcut) book debt for debt; this is acceptable unless
+            the firm's bonds trade at a large discount to par. The after-tax cost of debt
+            reflects that interest is tax-deductible, which is why debt is "cheaper" than equity.
+        </p>
+    </div>
+
+{% endif %}

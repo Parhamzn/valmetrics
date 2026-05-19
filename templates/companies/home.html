@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Valmetrics — home{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto py-16 text-center space-y-6">
+    <h1 class="text-5xl font-semibold tracking-tight bg-gradient-to-br from-gray-900 via-gray-700 to-gray-900 bg-clip-text text-transparent">
+        Valmetrics
+    </h1>
+    <p class="text-gray-600 text-lg">Personal financial-modeling tool. Type a ticker above, or jump to one below.</p>
+
+    <div class="flex flex-wrap justify-center gap-2 pt-6">
+        {% for t in popular %}
+        <a href="{% url 'companies:overview' ticker=t %}"
+           class="px-4 py-2 text-sm font-medium bg-white border border-gray-200 rounded-full hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 shadow-card hover:shadow-lift transition">
+            {{ t }}
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% load format_filters %}
+
+<div class="space-y-8">
+    {% for category in categories %}
+    <section>
+        <div class="flex items-baseline gap-3 mb-4">
+            <h2 class="text-xl font-semibold tracking-tight text-gray-900">{{ category.name }}</h2>
+            <span class="text-xs uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-500">
+                {{ category.models|length }} model{{ category.models|length|pluralize }}
+            </span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {% for model in category.models %}
+                {% if model.available %}
+                <a href="{% url model.url_name ticker=ticker %}"
+                   hx-get="{% url model.url_name ticker=ticker %}"
+                   hx-target="#tab-panel"
+                   hx-swap="innerHTML"
+                   hx-push-url="true"
+                   class="group block bg-white border border-gray-200 hover:border-blue-300 rounded-2xl p-4 shadow-card hover:shadow-lift hover:-translate-y-0.5 transition-all">
+                    <div class="font-medium text-gray-900 group-hover:text-blue-700 transition-colors">{{ model.label }}</div>
+                    <div class="text-xs text-gray-500 mt-1">{{ category.name }}</div>
+                </a>
+                {% else %}
+                <div class="block bg-gray-50 border border-dashed border-gray-200 rounded-2xl p-4 opacity-60">
+                    <div class="font-medium text-gray-700 flex items-center gap-2">
+                        {{ model.label }}
+                        <span class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-gray-200 text-gray-600">soon</span>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1">{{ category.name }}</div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </section>
+    {% endfor %}
+</div>

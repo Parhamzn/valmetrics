@@ -1,0 +1,90 @@
+{% load format_filters %}
+
+{% if dcf_error %}
+    <div class="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">
+        Couldn't compute DCF: {{ dcf_error }}
+    </div>
+{% elif not dcf_outputs %}
+    <div class="text-gray-500">No result computed.</div>
+{% else %}
+
+    <!-- Headline -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+        <div class="bg-white border border-gray-200 rounded p-3">
+            <div class="text-xs uppercase text-gray-500">Fair value / share</div>
+            <div class="text-2xl font-mono">{{ profile.currency }} {{ dcf_outputs.fair_value_per_share|floatformat:2 }}</div>
+        </div>
+        <div class="bg-white border border-gray-200 rounded p-3">
+            <div class="text-xs uppercase text-gray-500">Current price</div>
+            <div class="text-2xl font-mono">
+                {% if quote %}{{ quote.currency }} {{ quote.price|floatformat:2 }}{% else %}—{% endif %}
+            </div>
+        </div>
+        <div class="bg-white border border-gray-200 rounded p-3">
+            <div class="text-xs uppercase text-gray-500">Upside</div>
+            <div class="text-2xl font-mono {{ upside_pct|signed_color }}">
+                {% if upside_pct is not None %}
+                    {{ upside_pct|percent }}
+                {% else %}—{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Projections table -->
+    <div class="overflow-x-auto border border-gray-200 rounded mb-4">
+        <table class="min-w-full text-sm">
+            <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                    <th class="text-left px-3 py-2 font-medium text-gray-700">Year</th>
+                    <th class="text-right px-3 py-2 font-medium text-gray-700">Revenue</th>
+                    <th class="text-right px-3 py-2 font-medium text-gray-700">EBIT</th>
+                    <th class="text-right px-3 py-2 font-medium text-gray-700">NOPAT</th>
+                    <th class="text-right px-3 py-2 font-medium text-gray-700">FCFF</th>
+                    <th class="text-right px-3 py-2 font-medium text-gray-700">Discount</th>
+                    <th class="text-right px-3 py-2 font-medium text-gray-700">PV FCFF</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in dcf_outputs.projections %}
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="px-3 py-1.5">Year {{ p.year }}</td>
+                    <td class="px-3 py-1.5 text-right font-mono">{{ p.revenue|money }}</td>
+                    <td class="px-3 py-1.5 text-right font-mono">{{ p.ebit|money }}</td>
+                    <td class="px-3 py-1.5 text-right font-mono">{{ p.nopat|money }}</td>
+                    <td class="px-3 py-1.5 text-right font-mono">{{ p.fcff|money }}</td>
+                    <td class="px-3 py-1.5 text-right font-mono">{{ p.discount_factor|floatformat:3 }}</td>
+                    <td class="px-3 py-1.5 text-right font-mono">{{ p.pv_fcff|money }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Value breakdown -->
+    <div class="bg-white border border-gray-200 rounded p-4">
+        <h4 class="text-sm font-semibold text-gray-700 mb-3">Valuation summary</h4>
+        <dl class="grid grid-cols-2 gap-y-1.5 text-sm">
+            <dt class="text-gray-600">Terminal value</dt>
+            <dd class="text-right font-mono">{{ dcf_outputs.terminal_value|money }}</dd>
+
+            <dt class="text-gray-600">PV of terminal value</dt>
+            <dd class="text-right font-mono">{{ dcf_outputs.pv_terminal_value|money }}</dd>
+
+            <dt class="text-gray-600 font-medium border-t border-gray-200 pt-2 mt-1">Enterprise value</dt>
+            <dd class="text-right font-mono font-medium border-t border-gray-200 pt-2 mt-1">{{ dcf_outputs.enterprise_value|money }}</dd>
+
+            <dt class="text-gray-600">− Net debt</dt>
+            <dd class="text-right font-mono">{{ dcf_inputs.net_debt|money }}</dd>
+
+            <dt class="text-gray-600 font-medium border-t border-gray-200 pt-2 mt-1">Equity value</dt>
+            <dd class="text-right font-mono font-medium border-t border-gray-200 pt-2 mt-1">{{ dcf_outputs.equity_value|money }}</dd>
+
+            <dt class="text-gray-600">÷ Diluted shares</dt>
+            <dd class="text-right font-mono">{{ dcf_inputs.shares_outstanding|humanize }}</dd>
+
+            <dt class="text-gray-600 font-medium border-t border-gray-200 pt-2 mt-1">Fair value per share</dt>
+            <dd class="text-right font-mono font-medium border-t border-gray-200 pt-2 mt-1">{{ profile.currency }} {{ dcf_outputs.fair_value_per_share|floatformat:2 }}</dd>
+        </dl>
+    </div>
+
+{% endif %}

@@ -1,0 +1,43 @@
+{% load format_filters %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <div class="lg:col-span-2 space-y-4">
+        <section>
+            <h2 class="text-lg font-semibold mb-2">Business summary</h2>
+            <p class="text-gray-700 leading-relaxed">{{ profile.description|default:"—" }}</p>
+        </section>
+
+        {% if profile.website %}
+        <section>
+            <a href="{{ profile.website }}" target="_blank" rel="noopener"
+               class="text-blue-600 hover:underline text-sm">
+                {{ profile.website }} ↗
+            </a>
+        </section>
+        {% endif %}
+    </div>
+
+    <aside class="space-y-3">
+        <h2 class="text-lg font-semibold">Key facts</h2>
+        <dl class="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
+            <dt class="text-gray-500">Sector</dt>
+            <dd>{{ profile.sector|or_dash }}</dd>
+
+            <dt class="text-gray-500">Industry</dt>
+            <dd>{{ profile.industry|or_dash }}</dd>
+
+            <dt class="text-gray-500">Country</dt>
+            <dd>{{ profile.country|or_dash }}</dd>
+
+            <dt class="text-gray-500">Employees</dt>
+            <dd>{{ profile.employees|humanize }}</dd>
+
+            <dt class="text-gray-500">Market cap</dt>
+            <dd>{{ profile.currency }} {{ profile.market_cap|humanize }}</dd>
+
+            <dt class="text-gray-500">Exchange</dt>
+            <dd>{{ profile.exchange|or_dash }}</dd>
+        </dl>
+    </aside>
+
+</div>
