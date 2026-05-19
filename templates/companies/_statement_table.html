@@ -33,14 +33,16 @@
         <div class="text-sm text-gray-500 dark:text-gray-400">No data available.</div>
     {% else %}
         {% with col_count=statement.lines|length|add:1 %}
+        {% widthratio 72 statement.lines|length 1 as data_col_pct %}
         <div class="border border-gray-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 shadow-card overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full text-sm">
+                <table class="w-full table-fixed text-sm">
                     <thead class="bg-blue-600 text-white">
                         <tr>
-                            <th class="text-left px-3 py-2.5 font-medium sticky left-0 bg-blue-600">Line item</th>
+                            <th class="text-left px-3 py-2.5 font-medium sticky left-0 bg-blue-600" style="width: 28%; min-width: 220px;">Line item</th>
                             {% for line in statement.lines %}
-                                <th class="text-right px-3 py-2.5 font-medium whitespace-nowrap font-mono" style="width: 1%;">
+                                <th class="text-right px-3 py-2.5 font-medium whitespace-nowrap font-mono"
+                                    style="width: {{ data_col_pct }}%; min-width: 96px;">
                                     {{ line.period_end|date:"Y-m-d" }}
                                 </th>
                             {% endfor %}
@@ -51,17 +53,17 @@
                             <tr @click="expanded = expanded === '{{ key }}' ? null : '{{ key }}'"
                                 :class="expanded === '{{ key }}' ? 'bg-blue-50/60 dark:bg-blue-950/40' : 'hover:bg-gray-50 dark:hover:bg-slate-800/60'"
                                 class="border-b border-gray-100 dark:border-slate-800 cursor-pointer transition-colors">
-                                <td class="px-3 py-2 sticky left-0 whitespace-nowrap"
+                                <td class="px-3 py-2 sticky left-0"
                                     :class="expanded === '{{ key }}' ? 'bg-blue-50/60 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 font-medium' : 'bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-300'">
-                                    <span class="inline-flex items-center gap-2">
-                                        <span class="text-xs"
+                                    <span class="inline-flex items-baseline gap-2">
+                                        <span class="text-xs leading-none"
                                               :class="expanded === '{{ key }}' ? 'rotate-90 text-blue-500 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'"
                                               style="transition: transform .15s">▶</span>
-                                        {{ label }}
+                                        <span>{{ label }}</span>
                                     </span>
                                 </td>
                                 {% for line in statement.lines %}
-                                    <td class="px-3 py-2 text-right font-mono text-gray-900 dark:text-gray-100 whitespace-nowrap" style="width: 1%;">
+                                    <td class="px-3 py-2 text-right font-mono text-gray-900 dark:text-gray-100 whitespace-nowrap">
                                         {{ line.items|get_item:key|money }}
                                     </td>
                                 {% endfor %}
