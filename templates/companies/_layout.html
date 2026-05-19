@@ -30,9 +30,10 @@
                         {% endif %}
                     {% endif %}
                 </div>
-                <div class="text-xs text-gray-400 mt-1">
-                    as of {{ quote.timestamp|date:"Y-m-d H:i" }} UTC
-                </div>
+                <div class="text-xs text-gray-400 mt-1"
+                     x-data
+                     x-init="$el.textContent = 'as of ' + window.fmtPriceTooltipTitle('{{ quote.timestamp|date:'c' }}', '1d')"
+                >as of {{ quote.timestamp|date:"Y-m-d H:i" }} UTC</div>
             </div>
             {% endif %}
             {% include "watchlist/_toggle_button.html" %}

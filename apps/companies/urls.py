@@ -6,6 +6,7 @@ app_name = "companies"
 
 urlpatterns = [
     path("", views.home, name="home"),
+    path("settings/", views.settings_view, name="settings"),
     path("company/", views.search, name="search_legacy"),
     path("search/", views.search, name="search"),
     path("company/<str:ticker>/", views.company_root, name="root"),

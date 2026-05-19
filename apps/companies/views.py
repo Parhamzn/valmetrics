@@ -66,6 +66,11 @@ def home(request: HttpRequest) -> HttpResponse:
 
 
 @require_GET
+def settings_view(request: HttpRequest) -> HttpResponse:
+    return render(request, "settings.html", {})
+
+
+@require_GET
 def search(request: HttpRequest) -> HttpResponse:
     q = (request.GET.get("q") or "").strip()
     is_htmx = bool(request.headers.get("HX-Request"))

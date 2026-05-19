@@ -7,9 +7,54 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    {# User preferences (theme + timezone) - applied before Tailwind paints
+       so the dark class on <html> is set in time to avoid a FOUC. #}
+    <script>
+      (function() {
+        var stored = {};
+        try { stored = JSON.parse(localStorage.getItem('valmetrics_prefs') || '{}'); } catch(e) {}
+        var prefs = {
+          theme: stored.theme || 'system',     // 'light' | 'dark' | 'system'
+          timezone: stored.timezone || 'local', // 'local' or IANA name
+          save: function() {
+            try {
+              localStorage.setItem('valmetrics_prefs', JSON.stringify({
+                theme: this.theme, timezone: this.timezone
+              }));
+            } catch(e) {}
+          },
+          applyTheme: function() {
+            var t = this.theme;
+            var dark = t === 'dark' ||
+              (t === 'system' && window.matchMedia &&
+               window.matchMedia('(prefers-color-scheme: dark)').matches);
+            document.documentElement.classList.toggle('dark', dark);
+            document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+          },
+          getTimezone: function() {
+            if (!this.timezone || this.timezone === 'local') {
+              try { return Intl.DateTimeFormat().resolvedOptions().timeZone; }
+              catch(e) { return 'UTC'; }
+            }
+            return this.timezone;
+          },
+        };
+        window.userPrefs = prefs;
+        prefs.applyTheme();
+        if (window.matchMedia) {
+          var mq = window.matchMedia('(prefers-color-scheme: dark)');
+          var listener = function() { if (prefs.theme === 'system') prefs.applyTheme(); };
+          if (mq.addEventListener) mq.addEventListener('change', listener);
+          else if (mq.addListener) mq.addListener(listener);
+        }
+      })();
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
+        darkMode: 'class',
         theme: {
           extend: {
             fontFamily: {
@@ -37,19 +82,20 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <meta name="csrf-token" content="{{ csrf_token }}">
 </head>
-<body class="bg-slate-50 text-gray-900 antialiased">
-    <nav class="bg-white/80 backdrop-blur border-b border-gray-200/70 sticky top-0 z-40">
+<body class="bg-slate-50 dark:bg-slate-950 text-gray-900 dark:text-gray-100 antialiased transition-colors">
+    <nav class="bg-white/80 dark:bg-slate-900/80 backdrop-blur border-b border-gray-200/70 dark:border-slate-800/70 sticky top-0 z-40">
         <div class="container mx-auto px-4 py-3 flex items-center justify-between gap-4">
             <div class="flex items-center gap-6">
-                <a href="/" class="text-lg font-semibold tracking-tight text-gray-900">
+                <a href="/" class="text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-50">
                     <span class="inline-flex items-center gap-2">
                         <span class="inline-block w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600"></span>
                         Valmetrics
                     </span>
                 </a>
                 <div class="flex items-center gap-1 text-sm">
-                    <a href="/" class="px-3 py-1.5 rounded-full text-gray-700 hover:bg-gray-100 transition">Home</a>
-                    <a href="/watchlist/" class="px-3 py-1.5 rounded-full text-gray-700 hover:bg-gray-100 transition">Watchlist</a>
+                    <a href="/" class="px-3 py-1.5 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition">Home</a>
+                    <a href="/watchlist/" class="px-3 py-1.5 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition">Watchlist</a>
+                    <a href="/settings/" class="px-3 py-1.5 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition">Settings</a>
                 </div>
             </div>
             <form action="/search/" method="get" class="flex items-center gap-2"
@@ -67,7 +113,7 @@
                         @focus="open = true"
                         @blur.debounce.200ms="open = false"
                         @keydown.escape="open = false; $event.target.blur()"
-                        class="pl-4 pr-4 py-2 text-sm border border-gray-200 rounded-full w-72 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition"
+                        class="pl-4 pr-4 py-2 text-sm border border-gray-200 dark:border-slate-700 rounded-full w-72 bg-gray-50 dark:bg-slate-800 dark:text-gray-100 dark:placeholder-gray-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition"
                     />
                     <div id="search-suggest"
                          x-show="open"

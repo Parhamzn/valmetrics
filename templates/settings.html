@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Settings — Valmetrics{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto py-6 space-y-6"
+     x-data="settingsManager"
+     x-init="init()">
+
+    <header>
+        <h1 class="text-2xl font-semibold tracking-tight">Settings</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Preferences are stored locally in your browser.
+        </p>
+    </header>
+
+    {# ----- Appearance ----- #}
+    <section class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-5 shadow-card">
+        <div class="flex items-baseline justify-between mb-1">
+            <h2 class="text-lg font-semibold">Appearance</h2>
+            <span class="text-xs text-gray-400" x-text="'Currently: ' + (resolvedTheme === 'dark' ? 'dark' : 'light')"></span>
+        </div>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Choose how Valmetrics looks. System follows your OS theme.</p>
+        <div class="inline-flex p-1 gap-1 bg-gray-100 dark:bg-slate-800 rounded-full text-sm">
+            <template x-for="opt in [{v:'light', l:'Light'}, {v:'dark', l:'Dark'}, {v:'system', l:'System'}]" :key="opt.v">
+                <button type="button"
+                        @click="setTheme(opt.v)"
+                        :class="theme === opt.v
+                          ? 'bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-50 font-medium shadow-sm'
+                          : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'"
+                        class="px-4 py-1.5 rounded-full transition"
+                        x-text="opt.l"></button>
+            </template>
+        </div>
+    </section>
+
+    {# ----- Time zone ----- #}
+    <section class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-5 shadow-card">
+        <h2 class="text-lg font-semibold mb-1">Time zone</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+            Used to format dates, times, and price-chart labels. Defaults to your browser's detected zone
+            <span class="font-mono" x-text="'(' + detectedTz + ')'"></span>.
+        </p>
+        <select x-model="timezone"
+                @change="saveTimezone()"
+                class="w-full max-w-md px-4 py-2 rounded-full text-sm
+                       bg-gray-50 dark:bg-slate-800 dark:text-gray-100
+                       border border-gray-200 dark:border-slate-700
+                       focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400">
+            <option value="local">Local (auto-detect — <span x-text="detectedTz"></span>)</option>
+            <optgroup label="Americas">
+                <option value="America/New_York">New York · ET</option>
+                <option value="America/Chicago">Chicago · CT</option>
+                <option value="America/Denver">Denver · MT</option>
+                <option value="America/Los_Angeles">Los Angeles · PT</option>
+                <option value="America/Phoenix">Phoenix · MST</option>
+                <option value="America/Toronto">Toronto</option>
+                <option value="America/Vancouver">Vancouver</option>
+                <option value="America/Mexico_City">Mexico City</option>
+                <option value="America/Sao_Paulo">São Paulo</option>
+                <option value="America/Argentina/Buenos_Aires">Buenos Aires</option>
+            </optgroup>
+            <optgroup label="Europe">
+                <option value="Europe/London">London</option>
+                <option value="Europe/Dublin">Dublin</option>
+                <option value="Europe/Lisbon">Lisbon</option>
+                <option value="Europe/Madrid">Madrid</option>
+                <option value="Europe/Paris">Paris</option>
+                <option value="Europe/Berlin">Berlin</option>
+                <option value="Europe/Amsterdam">Amsterdam</option>
+                <option value="Europe/Zurich">Zürich</option>
+                <option value="Europe/Rome">Rome</option>
+                <option value="Europe/Stockholm">Stockholm</option>
+                <option value="Europe/Athens">Athens</option>
+                <option value="Europe/Istanbul">Istanbul</option>
+                <option value="Europe/Moscow">Moscow</option>
+            </optgroup>
+            <optgroup label="Middle East &amp; Africa">
+                <option value="Asia/Tehran">Tehran</option>
+                <option value="Asia/Dubai">Dubai</option>
+                <option value="Asia/Riyadh">Riyadh</option>
+                <option value="Asia/Jerusalem">Jerusalem</option>
+                <option value="Africa/Johannesburg">Johannesburg</option>
+                <option value="Africa/Cairo">Cairo</option>
+                <option value="Africa/Lagos">Lagos</option>
+            </optgroup>
+            <optgroup label="Asia &amp; Pacific">
+                <option value="Asia/Kolkata">Mumbai · IST</option>
+                <option value="Asia/Karachi">Karachi</option>
+                <option value="Asia/Singapore">Singapore</option>
+                <option value="Asia/Hong_Kong">Hong Kong</option>
+                <option value="Asia/Shanghai">Shanghai</option>
+                <option value="Asia/Tokyo">Tokyo</option>
+                <option value="Asia/Seoul">Seoul</option>
+                <option value="Asia/Taipei">Taipei</option>
+                <option value="Australia/Sydney">Sydney</option>
+                <option value="Australia/Melbourne">Melbourne</option>
+                <option value="Pacific/Auckland">Auckland</option>
+            </optgroup>
+            <optgroup label="UTC">
+                <option value="UTC">UTC</option>
+            </optgroup>
+        </select>
+        <div class="mt-3 text-sm text-gray-500 dark:text-gray-400">
+            Current time in this zone:
+            <span class="font-mono text-gray-700 dark:text-gray-200" x-text="currentTimePreview"></span>
+        </div>
+    </section>
+
+</div>
+
+<script>
+document.addEventListener('alpine:init', function() {
+    Alpine.data('settingsManager', function() {
+        return {
+            theme: 'system',
+            timezone: 'local',
+            detectedTz: 'UTC',
+            currentTimePreview: '',
+            _previewTimer: null,
+            get resolvedTheme() {
+                if (this.theme === 'dark') return 'dark';
+                if (this.theme === 'light') return 'light';
+                return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            },
+            init: function() {
+                this.theme = (window.userPrefs && window.userPrefs.theme) || 'system';
+                this.timezone = (window.userPrefs && window.userPrefs.timezone) || 'local';
+                try {
+                    this.detectedTz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+                } catch(e) { this.detectedTz = 'UTC'; }
+                this.refreshPreview();
+                var self = this;
+                this._previewTimer = setInterval(function() { self.refreshPreview(); }, 1000);
+            },
+            setTheme: function(v) {
+                this.theme = v;
+                window.userPrefs.theme = v;
+                window.userPrefs.applyTheme();
+                window.userPrefs.save();
+            },
+            saveTimezone: function() {
+                window.userPrefs.timezone = this.timezone;
+                window.userPrefs.save();
+                this.refreshPreview();
+            },
+            refreshPreview: function() {
+                var tz = this.timezone === 'local' ? this.detectedTz : this.timezone;
+                try {
+                    var fmt = new Intl.DateTimeFormat(undefined, {
+                        timeZone: tz,
+                        year: 'numeric', month: 'short', day: 'numeric',
+                        hour: '2-digit', minute: '2-digit', second: '2-digit',
+                        timeZoneName: 'short',
+                    });
+                    this.currentTimePreview = fmt.format(new Date());
+                } catch(e) {
+                    this.currentTimePreview = '—';
+                }
+            },
+        };
+    });
+});
+</script>
+{% endblock %}
